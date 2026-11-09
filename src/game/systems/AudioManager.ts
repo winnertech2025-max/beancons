@@ -9,7 +9,7 @@ const sfx: Record<SfxName, string> = {
 let backgroundMusic: HTMLAudioElement | undefined
 /** Starts once after a real player gesture; changing scenes never creates a second loop. */
 export const startBackgroundMusic = () => {
-  if (!ProgressManager.load().soundEnabled) return false
+  if (!ProgressManager.load().musicEnabled) return false
   if (!backgroundMusic) { backgroundMusic = new Audio('/assets/nhacnen.mp3'); backgroundMusic.loop = true; backgroundMusic.volume = .14; backgroundMusic.preload = 'auto' }
   void backgroundMusic.play().catch(() => { /* The next gesture may satisfy a strict browser. */ })
   return true
@@ -30,7 +30,7 @@ const utteranceFor = (word: string, language: string, voice?: SpeechSynthesisVoi
   return utterance
 }
 export const speak = (word: string, language = 'en-US') => {
-  if (!ProgressManager.load().soundEnabled || !('speechSynthesis' in window)) return false
+  if (!ProgressManager.load().voiceEnabled || !('speechSynthesis' in window)) return false
   const voice = voiceFor(language)
   // Never hand Vietnamese text to the system's English default voice.
   if (language.toLowerCase().startsWith('vi') && !voice) return false
@@ -42,7 +42,7 @@ export const speakAnimal = (word: string) => speak(word.toLowerCase(), 'en-US')
 export const speakVietnamese = (word: string) => speak(word, 'vi-VN')
 /** Queues English then Vietnamese without cutting the English word off. */
 export const speakBilingual = (english: string, vietnamese: string) => {
-  if (!ProgressManager.load().soundEnabled || !('speechSynthesis' in window)) return false
+  if (!ProgressManager.load().voiceEnabled || !('speechSynthesis' in window)) return false
   const vietnameseVoice = voiceFor('vi')
   if (!vietnameseVoice) return speakAnimal(english)
   stopSpeaking(); speechSynthesis.speak(utteranceFor(english.toLowerCase(), 'en-US', voiceFor('en-US'))); speechSynthesis.speak(utteranceFor(vietnamese, 'vi-VN', vietnameseVoice))

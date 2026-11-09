@@ -1,4 +1,12 @@
 export type AssetEntry = { id: string; path: string; type: 'image' | 'audio' | 'spritesheet' }
+// The client supplied a dedicated folder for every free Fishing Lake level.
+// Slot 1 is the caught creature/object; slots 2–4 are the supplied answer cards.
+const fishingLevelAssets: AssetEntry[] = [
+  ...Array.from({ length: 20 }, (_, index) => { const level = String(index + 1).padStart(2, '0'); return { id: `drive-fishing-l${level}-1`, path: `/assets/drive/fishing/levels/l${level}-1.png`, type: 'image' as const } }),
+  ...Array.from({ length: 20 }, (_, index) => { const level = String(index + 1).padStart(2, '0'); return { id: `drive-fishing-l${level}-2`, path: `/assets/drive/fishing/levels/l${level}-2.png`, type: 'image' as const } }),
+  ...['01','02','03','04','05','07','08','09','10','12','13','14','15','17','19','20'].map((level) => ({ id: `drive-fishing-l${level}-3`, path: `/assets/drive/fishing/levels/l${level}-3.png`, type: 'image' as const })),
+  { id: 'drive-fishing-l15-4', path: '/assets/drive/fishing/levels/l15-4.png', type: 'image' },
+]
 export const assets = {
   backgrounds: [
     { id: 'farm-map', path: '/assets/backgrounds/farm-map.png', type: 'image' },
@@ -41,6 +49,7 @@ export const assets = {
     { id: 'drive-fishing-fish', path: '/assets/drive/fishing/fish.png', type: 'image' },
     { id: 'drive-fishing-crab', path: '/assets/drive/fishing/crab.png', type: 'image' },
     { id: 'drive-fishing-lotus', path: '/assets/drive/fishing/lotus.png', type: 'image' },
+    ...fishingLevelAssets,
     { id: 'drive-memory-cow', path: '/assets/drive/memory/cow-card.png', type: 'image' },
     { id: 'drive-memory-pig', path: '/assets/drive/memory/pig-card.png', type: 'image' },
     // Flashcard source art from the supplied Drive Flashcard folders.
