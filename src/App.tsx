@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import Phaser from 'phaser'
 import { gameConfig } from './game/config/gameConfig'
 import { useFarmStore } from './store/gameStore'
+import { startBackgroundMusic } from './game/systems/AudioManager'
 import './App.css'
 
 function App() {
@@ -28,6 +29,11 @@ function App() {
     }, 5000)
   }, [])
   const requestVideoPlay = useCallback((video: HTMLVideoElement) => { void video.play().catch(markVideoUnavailable) }, [markVideoUnavailable])
+  useEffect(() => {
+    const startMusic = () => startBackgroundMusic()
+    window.addEventListener('pointerdown', startMusic, { once: true })
+    return () => window.removeEventListener('pointerdown', startMusic)
+  }, [])
   useEffect(() => {
     const check = () => setPortrait(window.innerHeight > window.innerWidth && window.innerWidth < 700)
     let observer: ResizeObserver | undefined

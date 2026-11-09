@@ -6,6 +6,15 @@ const sfx: Record<SfxName, string> = {
   tap: '/assets/audio/click_001.wav', select: '/assets/audio/select_001.wav', drop: '/assets/audio/drop_001.wav',
   tick: '/assets/audio/tick_001.wav', success: '/assets/audio/confirmation_001.wav', error: '/assets/audio/error_001.wav', bong: '/assets/audio/bong_001.wav',
 }
+let backgroundMusic: HTMLAudioElement | undefined
+/** Starts once after a real player gesture; changing scenes never creates a second loop. */
+export const startBackgroundMusic = () => {
+  if (!ProgressManager.load().soundEnabled) return false
+  if (!backgroundMusic) { backgroundMusic = new Audio('/assets/nhacnen.mp3'); backgroundMusic.loop = true; backgroundMusic.volume = .14; backgroundMusic.preload = 'auto' }
+  void backgroundMusic.play().catch(() => { /* The next gesture may satisfy a strict browser. */ })
+  return true
+}
+export const pauseBackgroundMusic = () => { backgroundMusic?.pause() }
 /** Short CC0 Kenney cues. Audio is created on discrete interactions only, never per frame. */
 export const playSfx = (name: SfxName, volume = .32) => {
   if (!ProgressManager.load().soundEnabled) return false

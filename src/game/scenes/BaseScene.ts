@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 import { WORLD_HEIGHT, WORLD_WIDTH } from '../config/gameConfig'
 import { ProgressManager } from '../systems/ProgressManager'
+import { pauseBackgroundMusic, startBackgroundMusic } from '../systems/AudioManager'
 export class BaseScene extends Phaser.Scene {
   title(text: string, subtitle?: string) { const group = this.add.container(WORLD_WIDTH / 2, 69); const heading = this.add.text(0, subtitle ? -17 : 0, text, { fontFamily: 'Nunito', fontSize: '31px', fontStyle: 'bold', color: '#ffffff', stroke: '#25556a', strokeThickness: 6 }).setOrigin(.5); group.add(heading); if (subtitle) group.add(this.add.text(0, 27, subtitle, { fontFamily: 'Nunito', fontSize: '19px', fontStyle: 'bold', color: '#ffffff', stroke: '#25556a', strokeThickness: 4 }).setOrigin(.5)); return group }
   sky() { this.cameras.main.setBackgroundColor('#48c9ef'); if (this.textures.exists('farm-map')) this.add.image(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, 'farm-map').setDisplaySize(WORLD_WIDTH, WORLD_HEIGHT).setAlpha(.27).setDepth(-30); this.add.rectangle(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, WORLD_WIDTH, WORLD_HEIGHT, 0x258fbd, .42).setDepth(-29); if (this.textures.exists('cloud-layer')) this.add.image(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, 'cloud-layer').setDisplaySize(WORLD_WIDTH, WORLD_HEIGHT).setAlpha(.16).setDepth(-28) }
@@ -11,7 +12,7 @@ export class BaseScene extends Phaser.Scene {
     const label = this.add.text(19, 0, '', { fontFamily: 'Nunito', fontSize: '17px', fontStyle: 'bold', color: '#fff', stroke: '#25556a', strokeThickness: 5 }).setOrigin(.5)
     const control = this.add.container(x, y, [icon, label]).setSize(178, 52).setInteractive({ useHandCursor: true })
     const render = () => { const enabled = ProgressManager.load().soundEnabled; icon.setTexture(enabled ? 'drive-sound-on' : 'drive-sound-off'); label.setText(enabled ? 'ÂM THANH: BẬT' : 'ÂM THANH: TẮT') }
-    render(); control.on('pointerdown', () => { const next = !ProgressManager.load().soundEnabled; ProgressManager.setSoundEnabled(next); if (!next && 'speechSynthesis' in window) speechSynthesis.cancel(); render() })
+    render(); control.on('pointerdown', () => { const next = !ProgressManager.load().soundEnabled; ProgressManager.setSoundEnabled(next); if (!next) { pauseBackgroundMusic(); if ('speechSynthesis' in window) speechSynthesis.cancel() } else startBackgroundMusic(); render() })
     return control
   }
 }
