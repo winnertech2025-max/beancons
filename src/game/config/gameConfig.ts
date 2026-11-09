@@ -1,0 +1,15 @@
+import Phaser from 'phaser'
+import { BootScene } from '../scenes/BootScene'
+import { WelcomeScene } from '../scenes/WelcomeScene'
+import { FarmMapScene } from '../scenes/FarmMapScene'
+import { VocabularyScene } from '../scenes/VocabularyScene'
+import { QuizScene } from '../scenes/QuizScene'
+import { ResultScene } from '../scenes/ResultScene'
+import { AvatarScene } from '../scenes/AvatarScene'
+import { IntroScene } from '../scenes/IntroScene'
+import { CropFarmScene } from '../scenes/CropFarmScene'
+import { CowFarmScene } from '../scenes/CowFarmScene'
+import { FishingLakeScene } from '../scenes/FishingLakeScene'
+import { MemoryHomeScene } from '../scenes/MemoryHomeScene'
+export const WORLD_WIDTH = 1536; export const WORLD_HEIGHT = 1024
+export const gameConfig: Phaser.Types.Core.GameConfig = { type: Phaser.AUTO, transparent: true, width: WORLD_WIDTH, height: WORLD_HEIGHT, backgroundColor: '#42c9f5', scene: [BootScene, WelcomeScene, AvatarScene, IntroScene, FarmMapScene, CropFarmScene, CowFarmScene, FishingLakeScene, MemoryHomeScene, VocabularyScene, QuizScene, ResultScene], scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, width: WORLD_WIDTH, height: WORLD_HEIGHT }, input: { activePointers: 2 }, render: { antialias: true, pixelArt: false } }
