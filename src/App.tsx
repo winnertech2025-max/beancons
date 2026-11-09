@@ -9,24 +9,22 @@ function App() {
   const host = useRef<HTMLDivElement>(null)
   const game = useRef<Phaser.Game | null>(null)
   const videoTimer = useRef<number | null>(null)
-  const videoFallbackTimer = useRef<number | null>(null)
+  const loadingFinished = useRef(false)
   const [portrait, setPortrait] = useState(false)
   const [showLoadingVideo, setShowLoadingVideo] = useState(true)
-  const markVideoUnavailable = useCallback(() => {
+  const finishLoadingVideo = useCallback((status: 'complete' | 'unavailable') => {
+    if (loadingFinished.current) return
+    loadingFinished.current = true
     if (videoTimer.current !== null) window.clearTimeout(videoTimer.current)
-    if (videoFallbackTimer.current !== null) window.clearTimeout(videoFallbackTimer.current)
-    document.documentElement.dataset.happyFarmLoadingVideo = 'unavailable'
-    window.dispatchEvent(new Event('happy-farm:loading-video-unavailable'))
+    document.documentElement.dataset.happyFarmLoadingVideo = status
+    window.dispatchEvent(new Event(`happy-farm:loading-video-${status}`))
     setShowLoadingVideo(false)
   }, [])
+  const markVideoUnavailable = useCallback(() => finishLoadingVideo('unavailable'), [finishLoadingVideo])
   const markVideoPlaying = useCallback(() => {
-    if (videoFallbackTimer.current !== null) window.clearTimeout(videoFallbackTimer.current)
+    if (loadingFinished.current) return
     document.documentElement.dataset.happyFarmLoadingVideo = 'playing'
     window.dispatchEvent(new Event('happy-farm:loading-video-playing'))
-    if (videoTimer.current === null) videoTimer.current = window.setTimeout(() => {
-      document.documentElement.dataset.happyFarmLoadingVideo = 'complete'
-      window.dispatchEvent(new Event('happy-farm:loading-video-complete'))
-    }, 5000)
   }, [])
   const requestVideoPlay = useCallback((video: HTMLVideoElement) => { void video.play().catch(markVideoUnavailable) }, [markVideoUnavailable])
   useEffect(() => {
@@ -56,14 +54,12 @@ function App() {
       }
     }
     void launch()
-    // Some embedded/automated browsers never settle a media element. Do not leave Boot blocked.
-    videoFallbackTimer.current = window.setTimeout(() => {
-      if (document.documentElement.dataset.happyFarmLoadingVideo !== 'playing') markVideoUnavailable()
-    }, 7000)
-    const hideVideo = () => setShowLoadingVideo(false)
-    window.addEventListener('happy-farm:boot-complete', hideVideo)
-    return () => { if (videoTimer.current !== null) window.clearTimeout(videoTimer.current); if (videoFallbackTimer.current !== null) window.clearTimeout(videoFallbackTimer.current); delete (window as Window & { __HAPPY_FARM_QA__?: unknown }).__HAPPY_FARM_QA__; window.removeEventListener('resize', check); window.removeEventListener('happy-farm:boot-complete', hideVideo); observer?.disconnect(); game.current?.destroy(true); game.current = null }
-  }, [markVideoUnavailable])
+    // The supplied animation is an opening only: it must never become a gate that
+    // leaves a child on Loading.  This watchdog is deliberately independent of
+    // browser media events, which can be unreliable on mobile/embedded browsers.
+    videoTimer.current = window.setTimeout(() => finishLoadingVideo('complete'), 5000)
+    return () => { if (videoTimer.current !== null) window.clearTimeout(videoTimer.current); delete (window as Window & { __HAPPY_FARM_QA__?: unknown }).__HAPPY_FARM_QA__; window.removeEventListener('resize', check); observer?.disconnect(); game.current?.destroy(true); game.current = null }
+  }, [finishLoadingVideo])
   return <main className="game-shell"><div className="game-stage">{showLoadingVideo && <video className="loading-video" autoPlay muted playsInline loop preload="auto" onCanPlay={(event) => requestVideoPlay(event.currentTarget)} onPlaying={markVideoPlaying} onError={markVideoUnavailable} aria-hidden="true"><source src="/assets/kling_20261108_VIDEO_Animate_th_4110_0.mp4" type="video/mp4" /></video>}<div ref={host} className="game-canvas" aria-label="Happy Farm game" /></div>{portrait && <div className="rotate-note"><div className="phone">▱</div><strong>Hãy xoay ngang màn hình</strong><span>Happy Farm sẽ vui hơn ở chế độ ngang!</span></div>}</main>
 }
 export default App
