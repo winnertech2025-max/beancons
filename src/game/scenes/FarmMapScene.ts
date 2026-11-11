@@ -20,25 +20,32 @@ export class FarmMapScene extends BaseScene {
       if (!state.unlockedZones.includes('memory-home')) state.unlock('memory-home')
       state = useFarmStore.getState()
     }
-    this.zone('VƯỜN RAU CỦ', 1190, 714, state.unlockedZones.includes('crop-farm'), () => this.scene.start('CropFarm'), true)
-    this.zone('TRANG TRẠI BÒ', 1124, 333, state.unlockedZones.includes('cow-farm'), () => this.scene.start('CowFarm'))
-    this.zone('TRANG TRẠI GÀ', 507, 515, false)
-    this.zone('HỒ CÂU CÁ', 757, 465, state.unlockedZones.includes('fishing-lake'), () => this.scene.start('FishingLake'))
-    this.zone('TRANG TRẠI CỪU', 1252, 558, false)
-    this.zone('NGÔI NHÀ', 360, 310, state.unlockedZones.includes('memory-home'), () => this.scene.start('MemoryHome'))
+    this.zone('VƯỜN RAU CỦ', 1190, 714, 350, 230, state.unlockedZones.includes('crop-farm'), () => this.scene.start('CropFarm'), true)
+    this.zone('TRANG TRẠI BÒ', 1124, 333, 345, 240, state.unlockedZones.includes('cow-farm'), () => this.scene.start('CowFarm'))
+    // The script unlocks both animal areas after the child has explored the
+    // two large activities (Lake and Home). Only Chicken has a playable scene
+    // at this point; Sheep remains visibly locked until its character art is supplied.
+    const animalAreasUnlocked = state.completedActivities.includes('fishing-lake') && state.completedActivities.includes('memory-home')
+    this.zone('TRANG TRẠI GÀ', 507, 515, 330, 245, animalAreasUnlocked, () => this.scene.start('ChickenFarm'))
+    this.zone('HỒ CÂU CÁ', 757, 465, 440, 305, state.unlockedZones.includes('fishing-lake'), () => this.scene.start('FishingLake'))
+    this.zone('TRANG TRẠI CỪU', 1252, 558, 330, 230, false)
+    this.zone('NGÔI NHÀ', 360, 310, 370, 270, state.unlockedZones.includes('memory-home'), () => this.scene.start('MemoryHome'))
     const reset = this.add.container(150, 944, [
       this.add.image(0, 0, 'drive-cow-banner').setDisplaySize(250, 84),
       this.add.text(0, 0, '↻  CHƠI LẠI TỪ ĐẦU', { fontFamily: 'Nunito', fontSize: '17px', fontStyle: 'bold', color: '#704019', stroke: '#fff9ea', strokeThickness: 3 }).setOrigin(.5),
     ]).setSize(250, 84).setInteractive({ useHandCursor: true })
     reset.on('pointerdown', () => { ProgressManager.reset(); this.scene.start('Welcome') })
   }
-  private zone(label: string, x: number, y: number, unlocked: boolean, go?: () => void, guided = false) {
-    const hit = this.add.ellipse(x, y, 208, 122, 0xffffff, 0.001).setInteractive({ useHandCursor: unlocked })
+  private zone(label: string, x: number, y: number, width: number, height: number, unlocked: boolean, go?: () => void, guided = false) {
+    const glow = this.add.graphics().setDepth(2).setAlpha(0)
+    glow.lineStyle(7, 0xfff1a6, .95).strokeEllipse(x, y, width, height)
+    glow.lineStyle(14, 0xffcb55, .24).strokeEllipse(x, y, width + 13, height + 13)
+    const hit = this.add.ellipse(x, y, width, height, 0xffffff, 0.001).setInteractive({ useHandCursor: unlocked })
     const caption = this.add.text(x, y + 74, unlocked ? label : `${label}\nMỞ KHÓA SAU`, { fontFamily: 'Nunito', fontSize: unlocked ? '21px' : '16px', fontStyle: 'bold', align: 'center', color: unlocked ? '#fff' : '#d6e7ec', stroke: '#25556a', strokeThickness: 5 }).setOrigin(.5)
     if (guided) { this.tweens.add({ targets: caption, y: y + 65, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.InOut' }); this.add.text(x, y - 72, 'BẮT ĐẦU Ở ĐÂY', { fontFamily: 'Nunito', fontSize: '18px', fontStyle: 'bold', color: '#fff5b1', stroke: '#25556a', strokeThickness: 5 }).setOrigin(.5) }
     if (!unlocked) { caption.setAlpha(.78); return }
-    hit.on('pointerover', () => this.tweens.add({ targets: caption, scale: 1.08, duration: 120, ease: 'Sine.Out' }))
-    hit.on('pointerout', () => this.tweens.add({ targets: caption, scale: 1, duration: 120, ease: 'Sine.Out' }))
+    hit.on('pointerover', () => { this.tweens.killTweensOf([caption, glow]); this.tweens.add({ targets: caption, scale: 1.08, duration: 120, ease: 'Sine.Out' }); this.tweens.add({ targets: glow, alpha: 1, duration: 120, ease: 'Sine.Out' }) })
+    hit.on('pointerout', () => { this.tweens.killTweensOf([caption, glow]); this.tweens.add({ targets: caption, scale: 1, duration: 120, ease: 'Sine.Out' }); this.tweens.add({ targets: glow, alpha: 0, duration: 120, ease: 'Sine.Out' }) })
     if (go) hit.on('pointerdown', go)
   }
 }

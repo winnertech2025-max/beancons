@@ -15,11 +15,12 @@
 - [x] Add character selection and bilingual opening dialogue.
 - [x] Add a playable crop lifecycle: seed drag, water, pest, fertilize, 10-second carrot growth, harvest, inventory/star reward and Cow Farm unlock.
 - [x] Add a playable Cow Farm: correct feed retry, bucket placement, five-tap milking, milk loading, inventory/star reward and downstream unlocks.
+- [x] Add the first Chicken Farm learning beat: touch Hen/Chick, hear the vocabulary, retry/select the Chick correctly after Lake + Home are complete.
 
 ## Next implementation order
 
 1. Replace the remaining legacy main-map marker navigation with the script zone map.
 2. Build Fishing Lake and Memory Card from script data and unlock rules.
-3. Build Chicken, Sheep, Delivery and Shop modules using the shared state.
+3. Continue Chicken Farm only when the missing chicken-food, egg and colouring assets have been imported; then build Sheep, Delivery and Shop with matching source art.
 
 The remaining script modules are not represented as complete simply because their UI may exist; each requires real interaction, data and persistence before completion.

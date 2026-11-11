@@ -24,11 +24,16 @@ export class BootScene extends Phaser.Scene {
   }
 
   preload() {
-    const loading = assets.backgrounds.find((asset) => asset.id === 'drive-loading')
-    if (loading) this.load.image(loading.id, loading.path)
-    assets.backgrounds.filter((asset) => asset.id !== 'drive-loading').forEach((asset) => this.load.image(asset.id, asset.path))
-    assets.driveObjects.forEach((asset) => this.load.image(asset.id, asset.path))
-    assets.animals.forEach((asset) => this.load.image(`animal-${asset.id}`, asset.path))
+    // The first five seconds must only fetch what the opening flow can display.
+    // Heavy minigame backgrounds and lesson cards are loaded by their own scene.
+    const openingBackgrounds = new Set(['drive-farm-overview', 'drive-main-farm-map'])
+    const openingObjects = new Set([
+      'drive-notice-board', 'drive-cow-banner', 'drive-star', 'drive-help', 'drive-check',
+      'drive-sound-on', 'drive-sound-off', 'drive-arrow-left',
+      'drive-girl-welcome', 'drive-girl-smile', 'drive-boy-wave',
+    ])
+    assets.backgrounds.filter((asset) => openingBackgrounds.has(asset.id)).forEach((asset) => this.load.image(asset.id, asset.path))
+    assets.driveObjects.filter((asset) => openingObjects.has(asset.id)).forEach((asset) => this.load.image(asset.id, asset.path))
     this.load.on('loaderror', (file: Phaser.Loader.File) => console.warn(`[Happy Farm] Asset unavailable: ${file.key}.`))
   }
 

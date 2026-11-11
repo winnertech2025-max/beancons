@@ -1,7 +1,8 @@
 export type AssetEntry = { id: string; path: string; type: 'image' | 'audio' | 'spritesheet' }
 // The client supplied a dedicated folder for every free Fishing Lake level.
 // Slot 1 is the caught creature/object; slots 2–4 are the supplied answer cards.
-const fishingLevelAssets: AssetEntry[] = [
+/** Kept out of Boot: the 20 rounds are streamed only when the player enters Fishing Lake. */
+export const fishingLevelAssets: AssetEntry[] = [
   ...Array.from({ length: 20 }, (_, index) => { const level = String(index + 1).padStart(2, '0'); return { id: `drive-fishing-l${level}-1`, path: `/assets/drive/fishing/levels/l${level}-1.png`, type: 'image' as const } }),
   ...Array.from({ length: 20 }, (_, index) => { const level = String(index + 1).padStart(2, '0'); return { id: `drive-fishing-l${level}-2`, path: `/assets/drive/fishing/levels/l${level}-2.png`, type: 'image' as const } }),
   ...['01','02','03','04','05','07','08','09','10','12','13','14','15','17','19','20'].map((level) => ({ id: `drive-fishing-l${level}-3`, path: `/assets/drive/fishing/levels/l${level}-3.png`, type: 'image' as const })),

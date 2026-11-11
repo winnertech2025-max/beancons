@@ -41,12 +41,19 @@ function App() {
       if (host.current && !game.current) {
         game.current = new Phaser.Game({ ...gameConfig, parent: host.current })
         if (import.meta.env.DEV) {
-          const qaWindow = window as Window & { __HAPPY_FARM_QA__?: { scenes: () => string[]; state: () => ReturnType<typeof useFarmStore.getState>; reset: () => void; start: (scene: string) => void } }
+          type QaObject = { type: string; x?: number; y?: number; text?: string; texture?: string; labels?: string[] }
+          const qaWindow = window as Window & { __HAPPY_FARM_QA__?: { scenes: () => string[]; state: () => ReturnType<typeof useFarmStore.getState>; reset: () => void; start: (scene: string, data?: object) => void; objects: (scene: string) => QaObject[] } }
           qaWindow.__HAPPY_FARM_QA__ = {
             scenes: () => game.current?.scene.getScenes(true).map((scene) => scene.scene.key) ?? [],
             state: () => useFarmStore.getState(),
             reset: () => useFarmStore.getState().reset(),
-            start: (scene: string) => game.current?.scene.start(scene),
+            start: (scene: string, data?: object) => game.current?.scene.start(scene, data),
+            // Development-only read-only probe used by browser QA to locate a
+            // moving control, then exercise it with a real pointer click.
+            objects: (scene: string) => game.current?.scene.getScene(scene)?.children.list.map((object) => {
+              const item = object as Phaser.GameObjects.GameObject & { x?: number; y?: number; text?: string; texture?: { key?: string }; list?: Array<{ text?: string }> }
+              return { type: item.type, x: item.x, y: item.y, text: item.text, texture: item.texture?.key, labels: item.list?.map((child) => child.text).filter((text): text is string => Boolean(text)) }
+            }) ?? [],
           }
         }
         observer = new ResizeObserver(() => requestAnimationFrame(() => game.current?.scale.refresh()))
@@ -60,6 +67,6 @@ function App() {
     videoTimer.current = window.setTimeout(() => finishLoadingVideo('complete'), 5000)
     return () => { if (videoTimer.current !== null) window.clearTimeout(videoTimer.current); delete (window as Window & { __HAPPY_FARM_QA__?: unknown }).__HAPPY_FARM_QA__; window.removeEventListener('resize', check); observer?.disconnect(); game.current?.destroy(true); game.current = null }
   }, [finishLoadingVideo])
-  return <main className="game-shell"><div className="game-stage">{showLoadingVideo && <video className="loading-video" autoPlay muted playsInline loop preload="auto" onCanPlay={(event) => requestVideoPlay(event.currentTarget)} onPlaying={markVideoPlaying} onError={markVideoUnavailable} aria-hidden="true"><source src="/assets/kling_20261108_VIDEO_Animate_th_4110_0.mp4" type="video/mp4" /></video>}<div ref={host} className="game-canvas" aria-label="Happy Farm game" /></div>{portrait && <div className="rotate-note"><div className="phone">▱</div><strong>Hãy xoay ngang màn hình</strong><span>Happy Farm sẽ vui hơn ở chế độ ngang!</span></div>}</main>
+  return <main className="game-shell"><div className="game-stage">{showLoadingVideo && <div className="loading-film" aria-hidden="true"><div className="loading-video-backdrop" /><video className="loading-video" autoPlay muted playsInline loop preload="auto" poster="/assets/drive/backgrounds/beacon-loading.png" onCanPlay={(event) => requestVideoPlay(event.currentTarget)} onPlaying={markVideoPlaying} onError={markVideoUnavailable}><source src="/assets/kling_20261108_VIDEO_Animate_th_4110_0.mp4" type="video/mp4" /></video></div>}<div ref={host} className="game-canvas" aria-label="Happy Farm game" /></div>{portrait && <div className="rotate-note"><div className="phone">▱</div><strong>Hãy xoay ngang màn hình</strong><span>Happy Farm sẽ vui hơn ở chế độ ngang!</span></div>}</main>
 }
 export default App

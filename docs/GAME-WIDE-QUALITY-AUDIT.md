@@ -20,7 +20,7 @@
 | Results | `ResultScene` | First-attempt score, star award and replay/back. | Partial; generic graphics, no supplied result/reward artwork. |
 | Fishing Lake | No scene registered | Background is present in assets only. | Missing. 40-level script data, catch mechanic, obstacle/free/paid policy and valid approved vocabulary are not implemented. |
 | Memory Home | No scene registered | No deck, level data, matching logic or route. | Missing. |
-| Chicken Farm | No scene registered | Chicken Farm background + transparent chick asset exist. | Missing. Script has a 16-versus-10 egg conflict recorded in `SCRIPT-ISSUES.md`. |
+| Chicken Farm | `ChickenFarmScene` via Farm Map after Lake + Home | Stage 1 is playable: touch Hen/Chick to hear the words, then answer “Where is the chick?”. Uses supplied transparent Hen/Chick art and actual retry/success feedback. | Partial. Feeding, egg collection, colouring and Level 2 remain unavailable until their matching food/egg/colour assets are supplied. The 16-versus-10 egg conflict remains recorded in `SCRIPT-ISSUES.md`. |
 | Sheep Farm | No scene registered | Sheep Farm background exists. | Missing. |
 | Farm Delivery | No scene registered | Inventory state can support it, but no order/timer/drag delivery scene. | Missing. |
 | Farm Shop / decor | No scene registered | Stars and owned-item state exist, but no catalog/shop/decor placement. | Missing. |

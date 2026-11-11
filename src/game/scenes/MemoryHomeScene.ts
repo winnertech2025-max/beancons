@@ -1,7 +1,7 @@
 import Phaser from 'phaser'
 import { BaseScene } from './BaseScene'
 import { gameButton } from '../objects/GameButton'
-import { playSfx, speakAnimal } from '../systems/AudioManager'
+import { playSfx, speakBilingual } from '../systems/AudioManager'
 import { useFarmStore } from '../../store/gameStore'
 
 type Flashcard = { id: string; word: string; texture: string }
@@ -24,6 +24,7 @@ const themes: Theme[] = [
   { id: 'home', title: 'ĐỒ VẬT TRONG NHÀ', subtitle: 'Chờ flashcard Drive', available: false, cards: [] },
   { id: 'bonus', title: 'BỘ THẺ BỔ SUNG', subtitle: 'Sắp mở khóa', available: false, cards: [] },
 ]
+const vietnameseWord: Record<string, string> = { Cow: 'Con bò', Pig: 'Con heo', Chicken: 'Con gà', Goat: 'Con dê', Pumpkin: 'Quả bí ngô', Tomato: 'Quả cà chua', Carrot: 'Cà rốt' }
 
 /** Home memory game: level 1 has four cards; level 2 has six, per the script. */
 export class MemoryHomeScene extends BaseScene {
@@ -33,6 +34,13 @@ export class MemoryHomeScene extends BaseScene {
   private theme?: Theme
   private level = 1
   constructor() { super('MemoryHome') }
+  preload() {
+    [
+      ['drive-memory-home', '/assets/drive/backgrounds/memory-home.png'], ['drive-memory-back', '/assets/drive/memory/flashcard-back.png'],
+      ['drive-memory-animal-cow', '/assets/drive/memory/animal-l2-1.png'], ['drive-memory-animal-pig', '/assets/drive/memory/animal-l2-2.png'], ['drive-memory-animal-chicken', '/assets/drive/memory/animal-l2-3.png'], ['drive-memory-animal-goat', '/assets/drive/memory/animal-l2-4.png'],
+      ['drive-memory-plant-pumpkin', '/assets/drive/memory/plant-l2-1.png'], ['drive-memory-plant-tomato', '/assets/drive/memory/plant-l2-2.png'], ['drive-memory-plant-carrot', '/assets/drive/memory/plant-l2-3.png'],
+    ].forEach(([key, path]) => { if (!this.textures.exists(key)) this.load.image(key, path) })
+  }
   create() { this.showThemes() }
 
   private clear() { this.cards = []; this.selected = []; this.locked = false; this.children.removeAll(true) }
@@ -80,10 +88,10 @@ export class MemoryHomeScene extends BaseScene {
   private checkPair() {
     this.locked = true; const [one, two] = this.selected
     if (one.id === two.id) {
-      one.matched = two.matched = true; playSfx('success'); speakAnimal(one.word)
+      one.matched = two.matched = true; playSfx('success'); speakBilingual(one.word, vietnameseWord[one.word] ?? one.word)
       this.tweens.add({ targets: [one.tile, two.tile], scale: 1.1, duration: 160, yoyo: true, onComplete: () => { this.selected = []; this.locked = false; if (this.cards.every((card) => card.matched)) this.roundComplete() } }); return
     }
-    playSfx('error'); speakAnimal('Oh no!'); this.time.delayedCall(800, () => { [one, two].forEach((item) => { this.tweens.add({ targets: item.tile, scaleX: 0, duration: 110, onComplete: () => { item.open = false; item.back.setVisible(true); item.face.setVisible(false); this.tweens.add({ targets: item.tile, scaleX: 1, duration: 110 }) } }) }); this.selected = []; this.locked = false })
+    playSfx('error'); speakBilingual('Oh no, try again!', 'Ôi không, bé thử lại nhé!'); this.time.delayedCall(800, () => { [one, two].forEach((item) => { this.tweens.add({ targets: item.tile, scaleX: 0, duration: 110, onComplete: () => { item.open = false; item.back.setVisible(true); item.face.setVisible(false); this.tweens.add({ targets: item.tile, scaleX: 1, duration: 110 }) } }) }); this.selected = []; this.locked = false })
   }
 
   private roundComplete() {
