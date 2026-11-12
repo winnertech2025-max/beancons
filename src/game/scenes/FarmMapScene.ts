@@ -11,6 +11,12 @@ export class FarmMapScene extends BaseScene {
     this.add.image(1400, 67, 'drive-star').setDisplaySize(34, 34)
     this.add.text(1454, 67, `${progress.totalStars} sao`, { fontFamily: 'Nunito', fontSize: '21px', fontStyle: 'bold', color: '#fff5b1', stroke: '#25556a', strokeThickness: 5 }).setOrigin(.5)
     this.soundToggle(1405, 122)
+    const shop = this.add.container(1360, 220, [
+      this.add.image(0, 0, 'drive-cow-banner').setDisplaySize(250, 76),
+      this.add.image(-92, 0, 'drive-star').setDisplaySize(40, 40),
+      this.add.text(24, 0, 'CỬA HÀNG', { fontFamily:'Nunito', fontSize:'19px', fontStyle:'bold', color:'#704019', stroke:'#fff9ea', strokeThickness:3 }).setOrigin(.5),
+    ]).setSize(250, 76).setInteractive({ useHandCursor:true })
+    shop.on('pointerdown', () => this.scene.start('FarmShop'))
     // Free-exploration mode requested by the client: completion/rewards remain
     // saved, but no illustrated destination is blocked by a prior activity.
     this.zone('VƯỜN RAU CỦ', 1190, 714, 350, 230, true, () => this.scene.start('CropFarm'), true)

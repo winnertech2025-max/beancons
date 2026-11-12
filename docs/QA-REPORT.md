@@ -182,3 +182,12 @@
 | Build and browser | PASS | `npm run build`, `npm run lint`, and `npx playwright test tests/e2e/warehouse.spec.ts --reporter=line` passed. All three Warehouse tests recorded no console errors or genuine failed asset requests. |
 
 **Unresolved content decision:** `Kịch bản 2.docx` requests Cow 2 eggs, Sheep 3 worms, and Fish 3 carrots + 2 milk, while the current Drive cards say Cow 3 milk + 2 carrots, Sheep 1 egg, and Fish 3 worms. The game now faithfully matches the card the child selected; it does not falsely claim the contradiction is resolved. See `SCRIPT-ISSUES.md`.
+
+# QA-REMEDIATION-001 — delivery queue, real pest interaction and shop (2026-11-13)
+
+| Check | Result | Evidence / limitation |
+|---|---|---|
+| Warehouse completion logic | PASS | Completing one selected order awards that order, returns to the mailbox, and visibly marks its card complete. The global completion screen is only reachable after all four cards. Timeout spends one star when available. Focused real-browser Map, Fishing and Warehouse regression passed. |
+| Crop pest beat | PASS (implementation) | Replaced the former `BẮT SÂU` skip button with three supplied worm-art targets. Each must be touched and gives bilingual feedback before fertilising can begin. Build and lint passed; full crop pointer regression remains required. |
+| Farm Shop | PASS | Added Farm Shop navigation from the map and a real star-spend/owned-item loop with the supplied tree, flower-bush and sunflower PNGs. No source artwork was altered. `tests/e2e/shop.spec.ts` covers purchase persistence and screenshot capture. |
+| Fishing persistence | PASS (implementation) | The current unlocked Fishing level is now saved as best progress rather than being reset to Level 1 when the child exits/re-enters. Level 18 and Levels 21–40 remain blocked by missing/contradictory supplied lesson data; they are not invented. |

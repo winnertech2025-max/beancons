@@ -31,6 +31,9 @@ export class WarehouseScene extends BaseScene {
   private loaded = 0
   private locked = false
   private timerEvent?: Phaser.Time.TimerEvent
+  // A visit is a sequence of deliveries. Do not show the final result after a
+  // single card; the mailbox remains the child-visible progress tracker.
+  private delivered = new Set<DeliveryOrder['id']>()
   private readonly p = '/assets/drive/warehouse/'
   constructor() { super('Warehouse') }
   preload() {
@@ -75,8 +78,14 @@ export class WarehouseScene extends BaseScene {
     this.artButton('wh-go', 1055, 760, 380, () => this.orders())
   }
   private orders() { this.clear(); this.bg('wh-orders-bg', 'ĐƠN HÀNG GIAO HÀNG', 'Chạm một đơn để xem bạn nào cần thức ăn')
-    const x = [255, 595, 935, 1275]; DELIVERY_ORDERS.forEach((order, i) => { const card = this.add.image(x[i], 500, order.card).setDisplaySize(218, 327).setInteractive({ useHandCursor: true }); const baseScaleX = card.scaleX; const baseScaleY = card.scaleY; card.on('pointerover', () => { this.tweens.killTweensOf(card); this.tweens.add({ targets: card, scaleX: baseScaleX * 1.04, scaleY: baseScaleY * 1.04, duration: 100 }) }); card.on('pointerout', () => { this.tweens.killTweensOf(card); this.tweens.add({ targets: card, scaleX: baseScaleX, scaleY: baseScaleY, duration: 100 }) }); card.on('pointerdown', () => { this.selected = i; playSfx('select'); this.prepare() }) })
-    this.add.text(768, 826, 'Mỗi đơn có thời hạn 05:00 · Chọn đơn để chuẩn bị hàng', { fontFamily: 'Nunito', fontSize: '25px', fontStyle: 'bold', color: '#fff9d4', stroke: '#704019', strokeThickness: 6 }).setOrigin(.5)
+    const x = [255, 595, 935, 1275]; DELIVERY_ORDERS.forEach((order, i) => {
+      const done = this.delivered.has(order.id)
+      const card = this.add.image(x[i], 500, order.card).setDisplaySize(218, 327).setAlpha(done ? .48 : 1)
+      if (done) { this.add.image(x[i], 645, 'drive-check').setDisplaySize(62, 62); return }
+      card.setInteractive({ useHandCursor: true }); const baseScaleX = card.scaleX; const baseScaleY = card.scaleY
+      card.on('pointerover', () => { this.tweens.killTweensOf(card); this.tweens.add({ targets: card, scaleX: baseScaleX * 1.04, scaleY: baseScaleY * 1.04, duration: 100 }) }); card.on('pointerout', () => { this.tweens.killTweensOf(card); this.tweens.add({ targets: card, scaleX: baseScaleX, scaleY: baseScaleY, duration: 100 }) }); card.on('pointerdown', () => { this.selected = i; playSfx('select'); this.prepare() })
+    })
+    this.add.text(768, 826, `${this.delivered.size} / ${DELIVERY_ORDERS.length} đơn đã giao · Mỗi đơn có thời hạn 05:00`, { fontFamily: 'Nunito', fontSize: '25px', fontStyle: 'bold', color: '#fff9d4', stroke: '#704019', strokeThickness: 6 }).setOrigin(.5)
   }
   private prepare() { this.clear(); this.explored.clear(); this.bg('wh-prepare-bg', 'CHUẨN BỊ HÀNG HÓA', 'Chạm từng vật phẩm để nghe tiếng Anh trước, tiếng Việt sau')
     this.add.image(768, 355, 'wh-shelf').setDisplaySize(700, 467)
@@ -96,7 +105,7 @@ export class WarehouseScene extends BaseScene {
     order.items.forEach((kind, i) => { const { texture, label } = DELIVERY_ITEMS[kind]; const homeX = startX + i * 120; const item = this.add.image(homeX, 832, texture).setDisplaySize(80, 80).setInteractive({useHandCursor:true}); this.add.text(homeX, 903,label,{fontFamily:'Nunito',fontSize:'13px',fontStyle:'bold',color:'#fff',stroke:'#704019',strokeThickness:4}).setOrigin(.5); item.on('pointerdown', (pointer: Phaser.Input.Pointer) => { if (this.locked || !item.input?.enabled) return; playSfx('tap'); const move = (p: Phaser.Input.Pointer) => item.setPosition(p.x, p.y); const finish = (p: Phaser.Input.Pointer) => { this.input.off('pointermove', move); if (p.x > 720 && p.x < 1240 && p.y > 340 && p.y < 660) { item.disableInteractive(); this.tweens.add({targets:item,x:760+this.loaded*93,y:510,duration:180}); this.loaded++; playSfx('drop'); if (this.loaded === order.items.length) this.success() } else this.tweens.add({targets:item,x:homeX,y:832,duration:180}) }; this.input.on('pointermove', move); this.input.once('pointerup', finish); move(pointer) }) })
     this.add.text(930, 765, `Kéo ${order.items.length} món hàng đúng theo đơn lên xe`, {fontFamily:'Nunito',fontSize:'24px',fontStyle:'bold',color:'#fff9d4',stroke:'#704019',strokeThickness:6}).setOrigin(.5)
   }
-  private failure() { if (this.locked) return; this.locked = true; playSfx('error'); speakBilingual('Time is up. Try again!', 'Hết giờ rồi. Bé thử lại nhé!'); this.time.delayedCall(1300, () => this.orders()) }
-  private success() { if (this.locked) return; this.locked = true; useFarmStore.getState().reward('warehouse-delivery', 3); useFarmStore.getState().complete('warehouse-delivery'); playSfx('success'); speakBilingual('Delivery success!', 'Giao hàng thành công!'); this.time.delayedCall(700, () => { this.clear(); this.bg('wh-success-bg', 'DELIVERY SUCCESS!', 'Giao hàng thành công · Bé nhận 3 ngôi sao'); this.add.image(530, 580, 'wh-fish').setDisplaySize(300, 300); this.artButton('wh-next', 1000, 780, 320, () => this.complete()) }) }
-  private complete() { this.clear(); this.bg('wh-success-bg', 'ALL DELIVERIES COMPLETED!', 'Bé đã giao hàng thành công!'); this.add.text(WORLD_WIDTH/2, 520, '⭐ ⭐ ⭐\nTuyệt vời, Bé giao hàng giỏi quá!', {fontFamily:'Nunito',fontSize:'42px',fontStyle:'bold',align:'center',color:'#fff9d4',stroke:'#704019',strokeThickness:8}).setOrigin(.5); this.artButton('wh-next', 768, 760, 360, () => this.scene.start('FarmMap')) }
+  private failure() { if (this.locked) return; this.locked = true; useFarmStore.getState().spend(1); playSfx('error'); speakBilingual('Time is up. Try again!', 'Hết giờ rồi. Bé bị trừ 1 ngôi sao, mình thử lại nhé!'); this.time.delayedCall(1300, () => this.orders()) }
+  private success() { if (this.locked) return; this.locked = true; const order = DELIVERY_ORDERS[this.selected]; this.delivered.add(order.id); useFarmStore.getState().reward(`warehouse-delivery:${order.id}`, 1); playSfx('success'); speakBilingual('Delivery success!', 'Giao hàng thành công!'); this.time.delayedCall(700, () => { this.clear(); this.bg('wh-success-bg', 'DELIVERY SUCCESS!', `Đơn ${this.delivered.size}/${DELIVERY_ORDERS.length} đã giao · Bé nhận 1 ngôi sao`); this.add.image(530, 580, 'wh-fish').setDisplaySize(300, 300); this.artButton('wh-next', 1000, 780, 320, () => this.delivered.size === DELIVERY_ORDERS.length ? this.complete() : this.orders()) }) }
+  private complete() { useFarmStore.getState().complete('warehouse-delivery'); this.clear(); this.bg('wh-success-bg', 'ALL DELIVERIES COMPLETED!', 'Bé đã giao đủ tất cả đơn hàng!'); this.add.text(WORLD_WIDTH/2, 520, '⭐ ⭐ ⭐\nTuyệt vời, Bé giao hàng giỏi quá!', {fontFamily:'Nunito',fontSize:'42px',fontStyle:'bold',align:'center',color:'#fff9d4',stroke:'#704019',strokeThickness:8}).setOrigin(.5); this.artButton('wh-next', 768, 760, 360, () => this.scene.start('FarmMap')) }
 }

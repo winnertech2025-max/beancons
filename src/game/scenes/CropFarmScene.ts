@@ -11,7 +11,7 @@ export class CropFarmScene extends BaseScene {
   private stage: CropStage = 'seed'; private stageText!: Phaser.GameObjects.Text; private instruction!: Phaser.GameObjects.Text; private translation!: Phaser.GameObjects.Text; private action?: Phaser.GameObjects.Container
   constructor() { super('CropFarm') }
   preload() {
-    [['drive-crop-farm', '/assets/drive/backgrounds/crop-farm.png'], ['drive-seed-bag', '/assets/drive/items/seed-bag.png'], ['drive-watering-can', '/assets/drive/tools/watering-can.png'], ['drive-garden-fork', '/assets/drive/tools/garden-fork.png'], ['drive-notice-board', '/assets/drive/ui/notice-board.png']].forEach(([key, path]) => { if (!this.textures.exists(key)) this.load.image(key, path) })
+    [['drive-crop-farm', '/assets/drive/backgrounds/crop-farm.png'], ['drive-seed-bag', '/assets/drive/items/seed-bag.png'], ['drive-watering-can', '/assets/drive/tools/watering-can.png'], ['drive-garden-fork', '/assets/drive/tools/garden-fork.png'], ['drive-crop-worm', '/assets/drive/warehouse/Giao hàng (5)/Sâu.png'], ['drive-notice-board', '/assets/drive/ui/notice-board.png']].forEach(([key, path]) => { if (!this.textures.exists(key)) this.load.image(key, path) })
   }
   create() {
     this.add.image(768, 512, 'drive-crop-farm').setDisplaySize(1536, 1024)
@@ -39,7 +39,7 @@ export class CropFarmScene extends BaseScene {
     this.translation.setText(instructions[this.stage][1])
     if (this.stage === 'seed') this.makeSeedBag()
     else if (this.stage === 'water') this.action = this.toolAction('drive-watering-can', 'TƯỚI NƯỚC', () => this.waterCrop())
-    else if (this.stage === 'pest') this.action = gameButton(this, 768, 890, 'BẮT SÂU', 0xff9c4c, () => this.advance('fertilize'), 280)
+    else if (this.stage === 'pest') this.catchPests()
     else if (this.stage === 'fertilize') this.action = this.toolAction('drive-garden-fork', 'BÓN PHÂN', () => this.startGrowth())
     else if (this.stage === 'harvest') this.action = gameButton(this, 768, 890, 'THU HOẠCH', 0x62c978, () => this.harvest(), 300)
   }
@@ -87,6 +87,22 @@ export class CropFarmScene extends BaseScene {
       this.tweens.add({ targets: drop, x: 610 + Phaser.Math.Between(-85, 85), y: 635 + Phaser.Math.Between(-22, 40), alpha: 0, scale: .45, duration: Phaser.Math.Between(420, 620), delay: index * 35, ease: 'Quad.Out', onComplete: () => drop.destroy() })
     }
     this.tweens.add({ targets: can, angle: -17, x: 718, duration: 180, yoyo: true, repeat: 1, ease: 'Sine.InOut', onComplete: () => this.advance('pest') })
+  }
+  private catchPests() {
+    const positions = [[560, 560], [700, 610], [835, 565]]
+    let caught = 0
+    const counter = this.add.text(768, 860, 'SÂU ĐÃ BẮT: 0 / 3', { fontFamily: 'Nunito', fontSize: '25px', fontStyle: 'bold', color: '#fff8c7', stroke: '#397848', strokeThickness: 5 }).setOrigin(.5)
+    positions.forEach(([x, y]) => {
+      const pest = this.add.image(x, y, 'drive-crop-worm').setDisplaySize(92, 70).setInteractive({ useHandCursor: true })
+      this.tweens.add({ targets: pest, y: y - 10, duration: 520, yoyo: true, repeat: -1, ease: 'Sine.InOut' })
+      pest.on('pointerdown', () => {
+        if (!pest.active) return
+        pest.disableInteractive(); caught += 1; playSfx('success'); speakBilingual('Worm!', 'Con sâu!')
+        this.tweens.add({ targets: pest, scale: .2, alpha: 0, duration: 220, onComplete: () => pest.destroy() })
+        counter.setText(`SÂU ĐÃ BẮT: ${caught} / 3`)
+        if (caught === positions.length) this.time.delayedCall(350, () => this.advance('fertilize'))
+      })
+    })
   }
   private advance(next: CropStage) { this.action?.destroy(); this.action = undefined; this.stage = next; this.renderStage() }
   private startGrowth() {

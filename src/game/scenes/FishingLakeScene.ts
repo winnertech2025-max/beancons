@@ -44,7 +44,7 @@ export class FishingLakeScene extends BaseScene {
   private level = 0
   private castHint!: Phaser.GameObjects.Text
   constructor() { super('FishingLake') }
-  init() { this.level = 0 }
+  init() { this.level = Math.min(useFarmStore.getState().bestScores['fishing-lake:level'] ?? 0, LEVELS.length - 1) }
   preload() {
     if (!this.textures.exists('drive-fishing-pond')) this.load.image('drive-fishing-pond', '/assets/drive/backgrounds/fishing-pond.png')
     if (!this.textures.exists('drive-fishing-girl-boat')) this.load.image('drive-fishing-girl-boat', '/assets/drive/fishing/girl-in-boat.png')
@@ -146,6 +146,7 @@ export class FishingLakeScene extends BaseScene {
     if (choice !== target) { playSfx('error'); speakBilingual('Try again!', 'Bé thử lại nhé!'); return }
     playSfx('success'); speakBilingual(target, VIETNAMESE_WORD[target] ?? target); useFarmStore.getState().reward(`fishing-lake:${this.level + 1}`, 5)
     this.level += 1
+    useFarmStore.getState().saveBestScore('fishing-lake:level', this.level)
     if (this.level < LEVELS.length) this.time.delayedCall(650, () => this.loadLevelAssets(this.level, () => this.drawLevel()))
     else { useFarmStore.getState().complete('fishing-lake'); this.scene.start('FarmMap') }
   }

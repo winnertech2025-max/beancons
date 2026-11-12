@@ -14,5 +14,6 @@ import { MemoryHomeScene } from '../scenes/MemoryHomeScene'
 import { ChickenFarmScene } from '../scenes/ChickenFarmScene'
 import { WarehouseScene } from '../scenes/WarehouseScene'
 import { SheepFarmScene } from '../scenes/SheepFarmScene'
+import { FarmShopScene } from '../scenes/FarmShopScene'
 export const WORLD_WIDTH = 1536; export const WORLD_HEIGHT = 1024
-export const gameConfig: Phaser.Types.Core.GameConfig = { type: Phaser.AUTO, transparent: true, width: WORLD_WIDTH, height: WORLD_HEIGHT, backgroundColor: '#42c9f5', scene: [BootScene, WelcomeScene, AvatarScene, IntroScene, FarmMapScene, CropFarmScene, CowFarmScene, FishingLakeScene, MemoryHomeScene, ChickenFarmScene, SheepFarmScene, WarehouseScene, VocabularyScene, QuizScene, ResultScene], scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, width: WORLD_WIDTH, height: WORLD_HEIGHT }, input: { activePointers: 2 }, render: { antialias: true, pixelArt: false } }
+export const gameConfig: Phaser.Types.Core.GameConfig = { type: Phaser.AUTO, transparent: true, width: WORLD_WIDTH, height: WORLD_HEIGHT, backgroundColor: '#42c9f5', scene: [BootScene, WelcomeScene, AvatarScene, IntroScene, FarmMapScene, CropFarmScene, CowFarmScene, FishingLakeScene, MemoryHomeScene, ChickenFarmScene, SheepFarmScene, WarehouseScene, FarmShopScene, VocabularyScene, QuizScene, ResultScene], scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, width: WORLD_WIDTH, height: WORLD_HEIGHT }, input: { activePointers: 2 }, render: { antialias: true, pixelArt: false } }

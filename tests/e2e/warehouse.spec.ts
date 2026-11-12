@@ -31,9 +31,11 @@ test('Farm Delivery uses supplied art through ready, preparation, truck loading,
     await page.mouse.down(); await page.waitForTimeout(35); await page.mouse.move(b.x + 900 / 1536 * b.width, b.y + 510 / 1024 * b.height, { steps: 8 }); await page.waitForTimeout(35); await page.mouse.up()
   }
   await page.waitForTimeout(1300); await page.screenshot({ path: testInfo.outputPath('warehouse-success.png') })
-  expect(await page.evaluate(() => window.__HAPPY_FARM_QA__?.state().completedActivities.includes('warehouse-delivery'))).toBe(true)
-  await point(1000, 780); await page.waitForTimeout(250); await point(768, 760)
-  await expect.poll(() => page.evaluate(() => window.__HAPPY_FARM_QA__?.scenes() ?? [])).toContain('FarmMap')
+  // A single order must return to the mailbox, never falsely announce that
+  // all deliveries are complete.
+  expect(await page.evaluate(() => window.__HAPPY_FARM_QA__?.state().completedActivities.includes('warehouse-delivery'))).toBe(false)
+  await point(1000, 780)
+  await expect.poll(() => page.evaluate(() => window.__HAPPY_FARM_QA__?.objects('Warehouse').some(object => object.labels?.includes('ĐƠN HÀNG GIAO HÀNG')))).toBe(true)
   expect(failures).toEqual([]); expect(errors).toEqual([])
 })
 
