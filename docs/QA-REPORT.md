@@ -169,3 +169,16 @@
 | Visual placement | PASS | Replaced the procedural rod completely. The real boat-girl asset moves only through water positions and stays clear of the bridge; caption and top HUD remain readable. `test-results/artifacts/e2e-fishing-Fishing-Lake-u-f6346-hrough-cast-reel-and-answer-desktop/fishing-girl-boat.png`. |
 | Interaction regression | PASS | Real pointer input touched the moving boat-girl, then the reel state, revealed the catch, selected the correct Fish card and reached Level 2. `tests/e2e/fishing.spec.ts` recorded no console errors or genuine failed asset requests. |
 | Build | PASS | `npm run build`, `npm run lint`, the focused Fishing test, and the full sequential `npx playwright test --workers=1 --reporter=line` suite (5 tests) passed. |
+
+# QA-WAREHOUSE-004 — selected-order integrity (2026-11-13)
+
+| Check | Result | Evidence |
+|---|---|---|
+| Root cause | FIXED | The former delivery scene rendered the selected card but always hard-coded three milk and two carrots. A Sheep “1 egg” order therefore displayed milk/carrot items, as reported. |
+| Four selection paths | PASS | Order data now drives both the selected card and draggable items: Chicken → 1 milk; Cow → 3 milk + 2 carrots; Sheep → 1 egg; Fish → 3 worms. Real browser flow opened each card, completed shelf discovery, loaded the exact items and reached success. |
+| Sheep visual QA | PASS | The selected Sheep card reads “1 egg”; the delivery screen shows exactly one draggable Egg item and instruction “Kéo 1 món hàng đúng theo đơn lên xe”. `test-results/artifacts/e2e-warehouse-each-Warehou-a03df-rinted-on-its-selected-card-desktop/warehouse-sheep-one-egg.png`. |
+| Timer lifecycle | PASS | Leaving/restarting a delivery removes its old 05:00 timer, preventing a prior order timer from firing in a later screen. |
+| Portrait | PASS | At 390×844 the game presents the intentional “Hãy xoay ngang màn hình” instruction instead of clipping the delivery controls. |
+| Build and browser | PASS | `npm run build`, `npm run lint`, and `npx playwright test tests/e2e/warehouse.spec.ts --reporter=line` passed. All three Warehouse tests recorded no console errors or genuine failed asset requests. |
+
+**Unresolved content decision:** `Kịch bản 2.docx` requests Cow 2 eggs, Sheep 3 worms, and Fish 3 carrots + 2 milk, while the current Drive cards say Cow 3 milk + 2 carrots, Sheep 1 egg, and Fish 3 worms. The game now faithfully matches the card the child selected; it does not falsely claim the contradiction is resolved. See `SCRIPT-ISSUES.md`.
