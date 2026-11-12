@@ -74,7 +74,7 @@
 | Farm map zones | SUPERSEDED | The former ellipse glow was functional but did not match the artwork silhouette, so it was removed rather than retained as a false-quality hover state. Direct illustrated-zone tapping remains verified. | See `QA-MAP-002`; exact zone PNG overlays are required for the intended glow. |
 | Crop result readability | PASS | The generic rectangle was replaced by the supplied notice-board art; the full real Crop lifecycle (drag → water → pest → fertilise → 10-second timer → harvest) was replayed. The final overlay hides stale task copy and keeps its success hierarchy readable. | `/tmp/hf-crop-reward-board-fixed.png` |
 
-**Open asset limitation (not hidden):** the repository and the previously supplied Fishing Drive folder contain the 20 level folders/cards, but no standalone transparent asset of the girl sitting in a boat. The fishing rod remains a compact temporary interaction control until the exact parent Drive folder/file URL for that PNG is supplied. Level 18 has Cuttlefish art but no matching Squid answer card, so it is deliberately marked unavailable instead of teaching the wrong word.
+**Open asset limitation (not hidden):** Level 18 has Cuttlefish art but no matching Squid answer card, so it is deliberately marked unavailable instead of teaching the wrong word. The girl-in-boat art was subsequently supplied in the public Hồ Drive folder and is verified in QA-FISH-005.
 
 # QA-MAP-002 — remove incorrect temporary hover outline
 
@@ -159,4 +159,13 @@
 | All seven available zones | PASS | Real canvas taps opened Crop, Cow, Chicken, Fishing Lake, Sheep, Home and Warehouse directly from Farm Map. The 1536×1024 captures were inspected for clipping/oversized artwork; Warehouse Ready and its CTA are correctly scaled. `test-results/artifacts/e2e-map-access-every-illus-d1c9b-e-without-completion-gating-desktop/map-{crop,cow,chicken,lake,sheep,home,warehouse}.png`. |
 | Full map regression | PASS | `npx playwright test tests/e2e/map-access.spec.ts --reporter=line`, `npm run build`, and `npm run lint` passed. The full visual pass now has a 90-second budget because seven streamed Phaser scenes exceed the former 60-second test budget on the supported macOS browser. |
 | Request audit | PASS | The test still fails on genuine failed requests. It ignores only `net::ERR_ABORTED` for an SFX fetch cancelled by an intentional scene switch; this is not a missing asset. |
-| Girl-in-boat Fishing art | BLOCKED — asset absent locally | Exhaustive scan of `public/assets/drive` found `backgrounds/fishing-pond.png`, level cards and generic girl poses, but no boat/girl-on-boat PNG. The pond background itself contains an empty boat. The visible moving fishing rod is therefore still code-drawn and has **not** been falsely replaced. Supply/sync the exact Drive file (or its parent folder) to replace it faithfully. |
+| Girl-in-boat Fishing art | SUPERSEDED | The exact public Hồ folder was supplied after this audit. See QA-FISH-005 for the verified replacement. |
+
+# QA-FISH-005 — supplied girl-in-boat replacement (2026-11-13)
+
+| Check | Result | Evidence |
+|---|---|---|
+| Source asset | PASS | Downloaded the public Hồ Drive folder provided by the client. `A0DF6D8F-DF1D-44E7-9A21-20AC50E9193F.png` is a 1536×1024 RGBA PNG of the girl sitting in a boat with rod and float; it is stored as `public/assets/drive/fishing/girl-in-boat.png`. |
+| Visual placement | PASS | Replaced the procedural rod completely. The real boat-girl asset moves only through water positions and stays clear of the bridge; caption and top HUD remain readable. `test-results/artifacts/e2e-fishing-Fishing-Lake-u-f6346-hrough-cast-reel-and-answer-desktop/fishing-girl-boat.png`. |
+| Interaction regression | PASS | Real pointer input touched the moving boat-girl, then the reel state, revealed the catch, selected the correct Fish card and reached Level 2. `tests/e2e/fishing.spec.ts` recorded no console errors or genuine failed asset requests. |
+| Build | PASS | `npm run build`, `npm run lint`, the focused Fishing test, and the full sequential `npx playwright test --workers=1 --reporter=line` suite (5 tests) passed. |

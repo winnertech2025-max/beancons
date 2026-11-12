@@ -47,6 +47,7 @@ export class FishingLakeScene extends BaseScene {
   init() { this.level = 0 }
   preload() {
     if (!this.textures.exists('drive-fishing-pond')) this.load.image('drive-fishing-pond', '/assets/drive/backgrounds/fishing-pond.png')
+    if (!this.textures.exists('drive-fishing-girl-boat')) this.load.image('drive-fishing-girl-boat', '/assets/drive/fishing/girl-in-boat.png')
     this.queueLevelAssets(this.level)
   }
   create() { this.drawLevel() }
@@ -78,47 +79,42 @@ export class FishingLakeScene extends BaseScene {
     // Starts at lower-right, then moves only through usable water positions.
     // A new destination is picked after every leg, so it cannot get stuck
     // oscillating along one short line.
-    const rod = this.rodControl(1290, 810, 'THẢ CẦN', () => this.castLine(rod))
+    const fisher = this.fishingGirlControl(1120, 575, 'THẢ CẦN', () => this.castLine(fisher))
     const reach = Math.min(1, .26 + this.level * .045)
     const candidates = [
-      { x: 1110, y: 690 }, { x: 980, y: 500 }, { x: 770, y: 390 },
-      { x: 580, y: 490 }, { x: 485, y: 650 }, { x: 760, y: 715 }, { x: 1050, y: 590 },
+      { x: 1100, y: 560 }, { x: 940, y: 475 }, { x: 760, y: 465 },
+      { x: 610, y: 505 }, { x: 820, y: 570 }, { x: 1045, y: 515 },
     ].filter((_point, index) => index < 2 + Math.ceil(reach * 5))
     const duration = Math.max(520, 1450 - this.level * 42)
     let previous = -1
     const travel = () => {
-      if (!rod.active || !rod.input?.enabled) return
+      if (!fisher.active || !fisher.input?.enabled) return
       const choices = candidates.map((_point, index) => index).filter((index) => index !== previous)
       previous = Phaser.Utils.Array.GetRandom(choices)
       const point = candidates[previous]
-      this.tweens.add({ targets: rod, x: point.x, y: point.y, duration, delay: 500, ease: 'Sine.InOut', onComplete: travel })
+      this.tweens.add({ targets: fisher, x: point.x, y: point.y, duration, delay: 500, ease: 'Sine.InOut', onComplete: travel })
     }
     travel()
   }
 
-  private rodControl(x: number, y: number, label: string, action: () => void) {
-    const art = this.add.graphics()
-    art.lineStyle(15, 0x74411c, 1).lineBetween(-64, 24, 48, -36)
-    art.lineStyle(5, 0xffd783, 1).lineBetween(-59, 20, 45, -33)
-    art.fillStyle(0xffc14a, 1).fillCircle(55, -41, 12)
-    art.lineStyle(3, 0xffffff, .9).lineBetween(55, -28, 55, 17)
-    art.fillStyle(0xff6b5e, 1).fillCircle(55, 23, 7)
-    const caption = this.add.text(0, 55, label, { fontFamily: 'Nunito', fontSize: '18px', fontStyle: 'bold', color: '#704019', stroke: '#fff9e8', strokeThickness: 4 }).setOrigin(.5)
-    const control = this.add.container(x, y, [art, caption]).setSize(166, 130).setInteractive({ useHandCursor: true })
+  private fishingGirlControl(x: number, y: number, label: string, action: () => void) {
+    const art = this.add.image(0, -6, 'drive-fishing-girl-boat').setDisplaySize(360, 240)
+    const caption = this.add.text(0, 126, label, { fontFamily: 'Nunito', fontSize: '19px', fontStyle: 'bold', color: '#704019', stroke: '#fff9e8', strokeThickness: 4 }).setOrigin(.5)
+    const control = this.add.container(x, y, [art, caption]).setSize(360, 270).setInteractive({ useHandCursor: true })
     control.on('pointerover', () => this.tweens.add({ targets: control, scale: 1.08, duration: 110 }))
     control.on('pointerout', () => this.tweens.add({ targets: control, scale: 1, duration: 110 }))
     control.on('pointerdown', () => { playSfx('tap'); action() })
     return control
   }
 
-  private castLine(rod: Phaser.GameObjects.Container) {
-    rod.disableInteractive(); this.tweens.killTweensOf(rod)
-    this.tweens.add({ targets: rod, x: 1115, y: 635, angle: -16, duration: 260, ease: 'Quad.Out' })
+  private castLine(fisher: Phaser.GameObjects.Container) {
+    fisher.disableInteractive(); this.tweens.killTweensOf(fisher)
+    this.tweens.add({ targets: fisher, x: 1040, y: 540, angle: -3, duration: 260, ease: 'Quad.Out' })
     this.castHint.setText('Fish on! Reel it in! · Cá cắn rồi! Kéo cần lên nhé!')
     speakBilingual('Fish on! Reel it in!', 'Cá cắn rồi! Kéo cần lên nhé!')
     this.time.delayedCall(550, () => {
-      rod.destroy()
-      const reel = this.rodControl(1260, 795, 'KÉO CẦN', () => { reel.destroy(); this.revealCatch() })
+      fisher.destroy()
+      const reel = this.fishingGirlControl(1120, 575, 'KÉO CẦN', () => { reel.destroy(); this.revealCatch() })
       this.tweens.add({ targets: reel, y: 775, duration: 430, yoyo: true, repeat: -1, ease: 'Sine.InOut' })
     })
   }
