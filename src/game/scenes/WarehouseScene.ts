@@ -17,9 +17,10 @@ export class WarehouseScene extends BaseScene {
     a('wh-ready-bg', 'Are u ready', '67AAD3A5-1271-4CA6-AA54-DF8B9DE3E4BF.png')
     a('wh-ready-board', 'Are u ready', 'IMG_7232.PNG'); a('wh-truck', 'Are u ready', '740C705C-D7C1-489D-9785-C21EEF7F7AD2.png')
     a('wh-yes', 'Are u ready', 'IMG_7168.PNG'); a('wh-exit', 'Are u ready', '7C0E205C-22DB-4C4C-8549-86F6DC0F70A3.png')
-    // The client renamed the authored source files. Use Bé Nông Dân (female NPC),
-    // never the older male farmer art, in every Warehouse beat.
-    a('wh-welcome-bg', 'Chào mừng (2)', 'Backround.png'); a('wh-girl', 'Chào mừng (2)', 'Npc nữ.png'); a('wh-speech', 'Chào mừng (2)', 'Thoại.png'); a('wh-go', 'Chào mừng (2)', 'Let’s go.png')
+    // The supplied Warehouse NPC is an opaque white-background export. Use the
+    // matching transparent female pose already supplied for the game so the
+    // welcome scene remains visually integrated with its illustrated barn.
+    a('wh-welcome-bg', 'Chào mừng (2)', 'Backround.png'); if (!this.textures.exists('drive-girl-welcome')) this.load.image('drive-girl-welcome', '/assets/drive/npc/girl/welcome.png'); a('wh-speech', 'Chào mừng (2)', 'Thoại.png'); a('wh-go', 'Chào mừng (2)', 'Let’s go.png')
     a('wh-orders-bg', 'đơn hàng giao', 'CD4C081B-94E1-48DA-A15E-4EC095BBAE17.png')
     a('wh-prepare-bg', 'Chuẩn bị hàng hoá', 'D702734A-7A68-408F-925F-5413DEC0F5CE.png'); a('wh-shelf', 'Chuẩn bị hàng hoá', 'IMG_7221.PNG'); a('wh-pumpkin', 'Chuẩn bị hàng hoá', 'IMG_7173.PNG')
     a('wh-delivery-bg', 'Giao hàng', '92F08105-4722-4626-B212-E4C95EA478E1.png'); a('wh-load-truck', 'Giao hàng', 'IMG_7275.PNG'); a('wh-milk', 'Giao hàng', '41670A0B-F9AA-4A68-ABC1-C39732552DA0.png'); a('wh-carrot', 'Giao hàng', 'C73AC759-90A3-41BA-BCAA-7CE0C00CC4C9.png'); a('wh-grass', 'Giao hàng', 'IMG_7272.PNG'); a('wh-egg', 'Giao hàng', 'IMG_7271.PNG')
@@ -35,9 +36,12 @@ export class WarehouseScene extends BaseScene {
     this.artButton('wh-yes', 768, 600, 300, () => { speakBilingual("Let's deliver food to farm animals!", 'Cùng giao hàng cho các bạn động vật nhé!'); this.welcome() })
   }
   private welcome() { this.clear(); this.bg('wh-welcome-bg', 'NHÀ KHO · FARM DELIVERY', 'Giao thức ăn đến các bạn động vật')
-    this.add.image(405, 600, 'wh-girl').setDisplaySize(360, 450); this.add.image(930, 365, 'wh-speech').setDisplaySize(620, 310)
+    this.add.image(390, 635, 'drive-girl-welcome').setDisplaySize(370, 420); this.add.image(930, 365, 'wh-speech').setDisplaySize(620, 310)
     speakBilingual('Hello! Can you help me deliver food to the farm animals?', 'Xin chào! Bé có thể giúp bác giao thức ăn cho các con vật không?')
-    this.artButton('wh-go', 1055, 745, 430, () => this.orders())
+    // The authored CTA is a very wide 3:1 illustration. Preserve that aspect
+    // ratio and keep it in the clear lower-right area; using a square display
+    // size here was the source of the giant cropped button in the UI.
+    this.artButton('wh-go', 1055, 760, 380, () => this.orders())
   }
   private orders() { this.clear(); this.bg('wh-orders-bg', 'ĐƠN HÀNG GIAO HÀNG', 'Chạm một đơn để xem bạn nào cần thức ăn')
     const x = [260, 520, 780, 1040, 1300]; for (let i = 0; i < 5; i++) { const card = this.add.image(x[i], 515, `wh-order-${i}`).setDisplaySize(196, 294).setInteractive({ useHandCursor: true }); card.on('pointerover', () => this.tweens.add({ targets: card, scale: 1.04, duration: 100 })); card.on('pointerout', () => this.tweens.add({ targets: card, scale: 1, duration: 100 })); card.on('pointerdown', () => { this.selected = i; playSfx('select'); this.prepare() }) }

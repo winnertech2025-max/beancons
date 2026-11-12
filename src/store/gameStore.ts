@@ -3,18 +3,22 @@ import { create } from 'zustand'
 export type FarmerAvatar = 'girl' | 'boy' | null
 export type FarmInventory = Record<string, number>
 export type FarmState = {
-  version: 4; stars: number; avatar: FarmerAvatar; introComplete: boolean; soundEnabled: boolean; musicEnabled: boolean; voiceEnabled: boolean
+  version: 5; stars: number; avatar: FarmerAvatar; introComplete: boolean; soundEnabled: boolean; musicEnabled: boolean; voiceEnabled: boolean
   learned: string[]; unlockedZones: string[]; inventory: FarmInventory; ownedItems: string[]; completedActivities: string[]; rewardEvents: string[]; bestScores: Record<string, number>
 }
 
 const STORAGE_KEY = 'happy-farm-state-v3'
-const initialState: FarmState = { version: 4, stars: 0, avatar: null, introComplete: false, soundEnabled: true, musicEnabled: true, voiceEnabled: true, learned: [], unlockedZones: ['crop-farm'], inventory: {}, ownedItems: [], completedActivities: [], rewardEvents: [], bestScores: {} }
+// The farm is now a free-exploration map: every authored destination is
+// available from a new or returning save. Progress still records rewards and
+// completion; it no longer gates where a child may play.
+const ALL_MAP_ZONES = ['crop-farm', 'cow-farm', 'fishing-lake', 'memory-home', 'chicken-farm', 'sheep-farm', 'warehouse']
+const initialState: FarmState = { version: 5, stars: 0, avatar: null, introComplete: false, soundEnabled: true, musicEnabled: true, voiceEnabled: true, learned: [], unlockedZones: ALL_MAP_ZONES, inventory: {}, ownedItems: [], completedActivities: [], rewardEvents: [], bestScores: {} }
 const read = (): FarmState => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return initialState
     const saved = JSON.parse(raw) as Partial<FarmState>
-    return { ...initialState, ...saved, version: 4, musicEnabled: saved.musicEnabled ?? saved.soundEnabled ?? true, voiceEnabled: saved.voiceEnabled ?? saved.soundEnabled ?? true, inventory: { ...initialState.inventory, ...saved.inventory }, bestScores: { ...initialState.bestScores, ...saved.bestScores } }
+    return { ...initialState, ...saved, version: 5, unlockedZones: [...new Set([...ALL_MAP_ZONES, ...(saved.unlockedZones ?? [])])], musicEnabled: saved.musicEnabled ?? saved.soundEnabled ?? true, voiceEnabled: saved.voiceEnabled ?? saved.soundEnabled ?? true, inventory: { ...initialState.inventory, ...saved.inventory }, bestScores: { ...initialState.bestScores, ...saved.bestScores } }
   } catch { return initialState }
 }
 const write = (state: FarmState) => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)) } catch { /* storage may be unavailable */ } }

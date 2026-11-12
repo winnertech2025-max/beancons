@@ -11,12 +11,12 @@
 | Bò: ba thức ăn, lần chọn 1 đọc Anh/lần 2 đọc Việt; kéo cỏ; flashcard | Có drag đúng/sai; mỗi thẻ thức ăn chạm lẻ đọc tiếng Anh, chạm chẵn đọc tiếng Việt; board flashcard có Cow, Grass, Hay, Eat. | **Partial.** Chưa có NPC bò/hand asset mới. |
 | Bò: chọn xô, TOUCH theo nhịp, sữa tăng, 2 bình | Có board chọn đồ, xô vào cảnh kế, 5 touch, cảnh xô đầy. | **Partial.** Cần thay control bằng hand-touch PNG khi file thật có mặt. Kịch bản mâu thuẫn: đoạn 2 bình, đoạn giao sau yêu cầu đếm 10. |
 | Bò: xe vào/dừng, kéo 10 bình, one–ten, START, nhún/đèn/còi/chạy, Little Farmer | Có xe vào, 10 kéo thả thật, đếm Anh→Việt, START chỉ sau 10, nhún/đèn/còi/chạy, cập nhật kho và kết quả. | **Pass cho beat giao hàng.** Cần khách xác nhận tồn kho 10 hay 2 vì mâu thuẫn nêu trên. |
-| Sau hai khu mở Hồ và Nhà | Cow hoàn thành mở Lake và Memory. | **Pass.** |
+| Sau hai khu mở Hồ và Nhà | Lake, Home và toàn bộ các điểm đến hiện có đều mở từ đầu theo yêu cầu mới của client; phần thưởng/hoàn thành vẫn được lưu riêng. | **Intentional product override.** Không còn chặn trải nghiệm theo thứ tự. |
 | Hồ: 40 level; 20 free/20 trả phí; cần di chuyển; vật bắt ngẫu nhiên; vật cản level 21–40 | Có 20 round free, cần di chuyển theo Level, cast/reel/đáp án, retry và sao. | **Partial.** Chưa có Level 21–40, paywall 39k, entitlement, obstacle; thiếu ảnh cô bé thuyền và thẻ Squid phù hợp Level 18. |
 | Nhà: 4 chủ đề + tổng hợp, free/paid, Level 1/2… | Có Animals/Plants/Mixed, Level 1 4 thẻ và Level 2 6 thẻ. | **Partial.** Chưa đủ theme, phần paid và flashcard đồ vật trong nhà vì folder asset hiện rỗng. |
 | Gà Level 1: làm quen → cho ăn/uống → thu trứng → tô màu | Chỉ beat làm quen Hen/Chick và trả lời “Where is the chick?” có thể chơi. | **Chưa đạt.** Client xác nhận asset cho 3 hoạt động còn lại đã cập nhật; phải import đúng file trước khi triển khai. Background Level 2 chưa có filename riêng trong workspace. |
 | Gà Level 2: tìm trứng (kịch bản mâu thuẫn 16/10) | Chưa triển khai. | **Blocked by script conflict + asset import.** Phải xác nhận mục tiêu 16 hay 10 trứng. |
-| Cừu: Jump N lần | Chưa triển khai. | **Hoãn theo thông báo khách: kịch bản lỗi, sẽ cập nhật.** |
+| Cừu: Jump N lần | Có scene Cừu dùng nền minh họa được cung cấp; yêu cầu “Jump three times”, ba lần bấm và phản hồi Great job/replay/home hoạt động. | **Partial.** Kịch bản chưa xác định các lượt sau nên không tự tạo thêm luật. |
 | Kho giao hàng: orders, 5 phút, kéo hàng, reward | Chưa có scene. | **Chưa triển khai; chờ asset kho khách nói đang chuẩn bị.** |
 | Farm Shop & Decor | Chưa có scene / economy loop. | **Chưa triển khai; cần asset catalog và giá/đơn vị nội dung.** |
 | Map hover | Có hit area lớn để bấm trực tiếp từng khu. | **Không có highlight tạm.** Ellipse sai hình đã bị gỡ. Cần PNG silhouette từng khu từ Drive để tạo outline đúng hình. |

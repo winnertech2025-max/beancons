@@ -1,7 +1,6 @@
 import { BaseScene } from './BaseScene'
 import { WORLD_HEIGHT, WORLD_WIDTH } from '../config/gameConfig'
 import { ProgressManager } from '../systems/ProgressManager'
-import { useFarmStore } from '../../store/gameStore'
 export class FarmMapScene extends BaseScene {
   constructor() { super('FarmMap') }
   create() {
@@ -12,27 +11,15 @@ export class FarmMapScene extends BaseScene {
     this.add.image(1400, 67, 'drive-star').setDisplaySize(34, 34)
     this.add.text(1454, 67, `${progress.totalStars} sao`, { fontFamily: 'Nunito', fontSize: '21px', fontStyle: 'bold', color: '#fff5b1', stroke: '#25556a', strokeThickness: 5 }).setOrigin(.5)
     this.soundToggle(1405, 122)
-    // Migrate saves made before the Lake/Home unlocks existed: a completed Cow Farm
-    // always means both post-Cow activities are available per the game script.
-    let state = useFarmStore.getState()
-    if (state.completedActivities.includes('cow-farm')) {
-      if (!state.unlockedZones.includes('fishing-lake')) state.unlock('fishing-lake')
-      if (!state.unlockedZones.includes('memory-home')) state.unlock('memory-home')
-      state = useFarmStore.getState()
-    }
-    this.zone('VƯỜN RAU CỦ', 1190, 714, 350, 230, state.unlockedZones.includes('crop-farm'), () => this.scene.start('CropFarm'), true)
-    this.zone('TRANG TRẠI BÒ', 1124, 333, 345, 240, state.unlockedZones.includes('cow-farm'), () => this.scene.start('CowFarm'))
-    // The script unlocks both animal areas after the child has explored the
-    // two large activities (Lake and Home). Only Chicken has a playable scene
-    // at this point; Sheep remains visibly locked until its character art is supplied.
-    const animalAreasUnlocked = state.completedActivities.includes('fishing-lake') && state.completedActivities.includes('memory-home')
-    this.zone('TRANG TRẠI GÀ', 507, 515, 330, 245, animalAreasUnlocked, () => this.scene.start('ChickenFarm'))
-    this.zone('HỒ CÂU CÁ', 757, 465, 440, 305, state.unlockedZones.includes('fishing-lake'), () => this.scene.start('FishingLake'))
-    this.zone('TRANG TRẠI CỪU', 1252, 558, 330, 230, false)
-    this.zone('NGÔI NHÀ', 360, 310, 370, 270, state.unlockedZones.includes('memory-home'), () => this.scene.start('MemoryHome'))
-    // Warehouse is the central red barn on the supplied map. Its interaction is
-    // available once the first farm supplies have been collected.
-    this.zone('NHÀ KHO', 770, 265, 285, 185, state.completedActivities.includes('cow-farm'), () => this.scene.start('Warehouse'))
+    // Free-exploration mode requested by the client: completion/rewards remain
+    // saved, but no illustrated destination is blocked by a prior activity.
+    this.zone('VƯỜN RAU CỦ', 1190, 714, 350, 230, true, () => this.scene.start('CropFarm'), true)
+    this.zone('TRANG TRẠI BÒ', 1124, 333, 345, 240, true, () => this.scene.start('CowFarm'))
+    this.zone('TRANG TRẠI GÀ', 507, 515, 330, 245, true, () => this.scene.start('ChickenFarm'))
+    this.zone('HỒ CÂU CÁ', 757, 465, 440, 305, true, () => this.scene.start('FishingLake'))
+    this.zone('TRANG TRẠI CỪU', 1252, 558, 330, 230, true, () => this.scene.start('SheepFarm'))
+    this.zone('NGÔI NHÀ', 360, 310, 370, 270, true, () => this.scene.start('MemoryHome'))
+    this.zone('NHÀ KHO', 770, 265, 285, 185, true, () => this.scene.start('Warehouse'))
     const reset = this.add.container(150, 944, [
       this.add.image(0, 0, 'drive-cow-banner').setDisplaySize(250, 84),
       this.add.text(0, 0, '↻  CHƠI LẠI TỪ ĐẦU', { fontFamily: 'Nunito', fontSize: '17px', fontStyle: 'bold', color: '#704019', stroke: '#fff9ea', strokeThickness: 3 }).setOrigin(.5),

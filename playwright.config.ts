@@ -4,6 +4,9 @@ export default defineConfig({
   testDir: './tests',
   outputDir: 'test-results/artifacts',
   timeout: 20_000,
+  // Rendering the full illustrated Phaser canvas is GPU-heavy on the supported
+  // macOS test host. Sequential runs make timeout results reproducible.
+  workers: 1,
   expect: { timeout: 8_000 },
   reporter: [['list'], ['html', { outputFolder: 'test-results/report', open: 'never' }]],
   use: {

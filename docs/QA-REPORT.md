@@ -124,3 +124,12 @@
 - Visual correction: PASS — Warehouse welcome now loads `Npc nữ.png` (Bé Nông Dân), replacing the old male farmer asset. The Ready screen no longer presents Exit alongside Start; Exit belongs in Settings as requested.
 - Build and browser: PASS — `npm run build` passed; the actual canvas QA flow (`tests/e2e/warehouse.spec.ts`) passed after the renamed assets were wired, with no failed requests or console errors.
 - Outstanding asset: the linked Kho folder contains `Exit.png` (the red Exit button) but not the full bilingual confirmation-board illustration shown in the attached screenshot, nor a separate Settings panel asset. I have not fabricated that illustration; it needs to be placed in the shared folder before the exact board can replace the current settings confirmation UI.
+
+# QA-MAP-003 — free map access and Farm Delivery welcome correction (2026-11-12)
+
+| Check | Result | Evidence |
+|---|---|---|
+| All illustrated map destinations | PASS | A real pointer test opened Crop, Cow, Chicken, Fishing Lake, Sheep, Home and Warehouse directly from the Farm Map without prior completion. Captures: `test-results/artifacts/e2e-map-access-every-illus-d1c9b-e-without-completion-gating-desktop/map-{crop,cow,chicken,lake,sheep,home,warehouse}.png`. |
+| Sheep Farm | PASS (initial beat) | The former dead/locked Sheep destination now opens a supplied-art scene. Three real `JUMP` presses reach the authored `Great job` response and both replay/home actions are present. |
+| Warehouse welcome layout | PASS | Replayed Ready → welcome with real canvas pointer input. The opaque white-background NPC export was replaced by the supplied transparent female pose; the authored LET'S GO button now preserves its 3:1 aspect ratio and stays inside the lower-right clear area. `test-results/artifacts/e2e-warehouse-Farm-Deliver-3e7d2-on-truck-loading-and-result-desktop/warehouse-welcome.png`. |
+| Full regression | PASS | `npm run build` and `npx playwright test --workers=1 --reporter=line` passed (3 tests). Sequential Playwright workers are intentional: parallel canvas runs on this macOS host caused false timeouts. No console error or failed asset request was recorded by the map/warehouse tests. |
