@@ -141,3 +141,13 @@
 | Welcome CTA hover | PASS | Real pointer hover over LET'S GO retains the authored small 3:1 CTA and does not cover the dialogue or scene. Evidence: `test-results/artifacts/e2e-warehouse-Farm-Deliver-3e7d2-on-truck-loading-and-result-desktop/warehouse-welcome-hover.png`. |
 | Cause and fix | PASS | `setDisplaySize` gives high-resolution PNGs a fractional baseline scale. Warehouse CTA/order-card and Fishing answer-card hover/press tweens now multiply that baseline rather than resetting to literal scale `1`. |
 | Browser regression | PASS | `npm run build` and `npx playwright test tests/e2e/warehouse.spec.ts --reporter=line` passed; Ready → welcome → hover → orders → prepare → drag delivery → result had no console errors or failed requests. |
+
+# QA-CHICKEN-002 — complete scripted Chicken Farm flow (2026-11-13)
+
+| Check | Result | Evidence |
+|---|---|---|
+| Level 1, four beats | PASS | Real pointer path performed Hen/Chick learning, incorrect/correct Chick answer, dragged Corn into the trough, touched water, collected ten eggs, selected a colour and tinted the egg, then reached the 4/4 reward screen. `test-results/artifacts/e2e-chicken-Chicken-Farm-c-41c69-ats-with-real-pointer-input-desktop/chicken-{meet,feed,eggs,complete}.png`. |
+| Level 2, hidden eggs | PASS | Real pointer path entered Level 2 and inspected haystack, bush, coop, tree and basket; all ten eggs were found and the completion screen appeared. `test-results/artifacts/e2e-chicken-Chicken-Farm-c-41c69-ats-with-real-pointer-input-desktop/chicken-level2-complete.png`. |
+| Build, interaction and browser errors | PASS | `npm run build`, `npm run lint`, and `npx playwright test tests/e2e/chicken.spec.ts --reporter=line` passed. The test recorded no console error or failed asset request. |
+
+**Script decision recorded:** the Level 2 document says both 16 and 10 eggs. The implementation uses 10 because the later explicit task board and counting instructions say “Find 10 eggs”; change this only after the client resolves the conflict. The authored “one egg every 3 minutes” pacing is not simulated in the completion test: the interaction uses the supplied egg inventory immediately so the full educational loop is playable and testable in one session.
