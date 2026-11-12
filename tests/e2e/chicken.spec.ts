@@ -18,7 +18,13 @@ test('Chicken Farm completes all four Level 1 script beats with real pointer inp
   for (let i = 0; i < 10; i++) { await point(475, 575); await page.waitForTimeout(400) }
   await point(768, 895); await page.waitForTimeout(250); await point(390, 825); await point(768, 560); await page.waitForTimeout(500); await page.screenshot({ path: testInfo.outputPath('chicken-complete.png') })
   expect(await page.evaluate(() => window.__HAPPY_FARM_QA__?.state().completedActivities.includes('chicken-farm'))).toBe(true)
-  await point(575, 830); await page.waitForTimeout(250); await point(900, 700); await page.waitForTimeout(250)
+  await point(575, 830); await page.waitForTimeout(250)
+  await expect.poll(() => page.evaluate(() => window.__HAPPY_FARM_QA__?.objects('ChickenFarm').some(object => object.labels?.includes('TRANG TRẠI GÀ · LEVEL 2')))).toBe(true)
+  // Tapping an unrelated part of the illustration must not replay or reset Level 1.
+  await point(760, 820); await page.waitForTimeout(180)
+  await expect.poll(() => page.evaluate(() => window.__HAPPY_FARM_QA__?.objects('ChickenFarm').some(object => object.labels?.includes('TRANG TRẠI GÀ · LEVEL 2')))).toBe(true)
+  await point(900, 700); await page.waitForTimeout(250)
+  await expect.poll(() => page.evaluate(() => window.__HAPPY_FARM_QA__?.objects('ChickenFarm').some(object => object.text === 'EGGS FOUND\n0 / 10'))).toBe(true)
   for (const [x, y] of [[285,555],[605,690],[995,450],[265,355],[1235,685]]) await point(x, y)
   await page.waitForTimeout(700); await page.screenshot({ path: testInfo.outputPath('chicken-level2-complete.png') })
   expect(await page.evaluate(() => window.__HAPPY_FARM_QA__?.state().completedActivities.includes('chicken-farm:level-2'))).toBe(true)

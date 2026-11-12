@@ -87,18 +87,22 @@ export class CowFarmScene extends BaseScene {
     this.instruction.setText('The truck is here! · Xe tải đến rồi!')
     const truck = this.add.image(-270, 655, 'drive-cow-truck').setDisplaySize(430, 286).setDepth(3)
     const lamp = this.add.circle(-375, 573, 11, 0xffef59, .95).setDepth(4)
+    const bottles: Phaser.GameObjects.Image[] = []
     this.tweens.add({ targets: truck, x: 1050, duration: 1150, ease: 'Sine.Out', onComplete: () => {
       lamp.setPosition(truck.x - 105, truck.y - 82)
       this.say('The truck is here!', 'Xe tải đến rồi!')
       this.instruction.setText(`Drag the milk bottles onto the truck! · Kéo bình sữa lên xe! · 0 / ${totalBottles}`)
+      bottles.forEach((bottle) => { bottle.setInteractive({ draggable: true, useHandCursor: true }); this.input.setDraggable(bottle) })
     } })
     this.tweens.add({ targets: lamp, alpha: .25, duration: 230, yoyo: true, repeat: -1 })
     let loaded = 0
     const loadedLabel = this.add.text(1045, 838, `BÌNH SỮA: 0 / ${totalBottles}`, { fontFamily: 'Nunito', fontSize: '22px', fontStyle: 'bold', color: '#fff8c7', stroke: '#5d3922', strokeThickness: 5 }).setOrigin(.5)
     for (let index = 0; index < totalBottles; index += 1) {
       const originX = 185 + (index % 5) * 116; const originY = 570 + Math.floor(index / 5) * 162
-      const bottle = this.add.image(originX, originY, 'drive-cow-bottle-milk').setDisplaySize(76, 90).setDepth(5).setInteractive({ draggable: true, useHandCursor: true })
-      this.input.setDraggable(bottle)
+      // The bottles are visibly present while the truck arrives, but cannot be
+      // dragged into an off-screen truck. This removes an easy silent failure.
+      const bottle = this.add.image(originX, originY, 'drive-cow-bottle-milk').setDisplaySize(76, 90).setDepth(5)
+      bottles.push(bottle)
       this.input.on('drag', (_p: Phaser.Input.Pointer, object: Phaser.GameObjects.GameObject, x: number, y: number) => { if (object === bottle) bottle.setPosition(x, y) })
       bottle.on('dragend', () => {
         if (Phaser.Math.Distance.Between(bottle.x, bottle.y, truck.x, truck.y) > 275) { playSfx('error', .2); this.tweens.add({ targets: bottle, x: originX, y: originY, duration: 260, ease: 'Back.Out' }); return }

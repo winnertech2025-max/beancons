@@ -12,6 +12,7 @@ export class ChickenFarmScene extends BaseScene {
   private locked = false
   private eggs = 0
   private selectedColour = 0xffffff
+  private level: 1 | 2 = 1
 
   constructor() { super('ChickenFarm') }
   preload() {
@@ -20,9 +21,11 @@ export class ChickenFarmScene extends BaseScene {
     ]
     files.forEach(([key, path]) => { if (!this.textures.exists(key)) this.load.image(key, path) })
   }
-  create() { this.showMeet() }
-  private clear() { this.tweens.killAll(); this.children.removeAll(true); this.locked = false }
-  private bg(sub: string) { this.add.image(768, 512, 'drive-chicken-farm').setDisplaySize(1536, 1024); this.title('TRANG TRẠI GÀ · LEVEL 1', sub); this.backButton('FarmMap'); this.soundToggle() }
+  create() { this.level = 1; this.showMeet() }
+  // `children.removeAll` only destroys what is visible.  Delayed callbacks from
+  // an old beat were still alive and could redraw Level 1 over Level 2.
+  private clear() { this.time.removeAllEvents(); this.tweens.killAll(); this.children.removeAll(true); this.locked = false }
+  private bg(sub: string) { this.add.image(768, 512, 'drive-chicken-farm').setDisplaySize(1536, 1024); this.title(`TRANG TRẠI GÀ · LEVEL ${this.level}`, sub); this.backButton('FarmMap'); this.soundToggle() }
   private heading(en: string, vi: string) { this.add.text(768, 164, en, { fontFamily: 'Nunito', fontSize: '34px', fontStyle: 'bold', color: '#fff9d4', stroke: '#337262', strokeThickness: 7 }).setOrigin(.5); this.add.text(768, 208, vi, { fontFamily: 'Nunito', fontSize: '22px', fontStyle: 'bold', color: '#fff', stroke: '#337262', strokeThickness: 5 }).setOrigin(.5) }
 
   private showMeet() {
@@ -69,13 +72,14 @@ export class ChickenFarmScene extends BaseScene {
   }
 
   private showLevelTwoIntro() {
-    this.clear(); this.bg('LEVEL 2 · Tìm trứng ẩn'); this.add.image(370, 585, 'drive-chicken-hen-happy').setDisplaySize(360, 250); this.add.text(900, 390, 'OH NO! MY EGGS ARE MISSING!\nCan you find them?', { fontFamily: 'Nunito', fontSize: '36px', fontStyle: 'bold', align: 'center', color: '#fff9d4', stroke: '#704019', strokeThickness: 7 }).setOrigin(.5); this.add.text(900, 500, 'Khám phá đống rơm, bụi cây, chuồng gà,\ncây lớn và phía sau giỏ để tìm trứng.', { fontFamily: 'Nunito', fontSize: '23px', fontStyle: 'bold', align: 'center', color: '#fff', stroke: '#337262', strokeThickness: 5 }).setOrigin(.5); gameButton(this, 900, 700, "LET'S FIND!", 0xffbd55, () => this.playLevelTwo(), 310)
+    this.level = 2
+    this.clear(); this.bg('Tìm trứng ẩn · Bước chuẩn bị'); this.add.image(370, 585, 'drive-chicken-hen-happy').setDisplaySize(360, 250); this.add.text(900, 390, 'OH NO! MY EGGS ARE MISSING!\nCan you find them?', { fontFamily: 'Nunito', fontSize: '36px', fontStyle: 'bold', align: 'center', color: '#fff9d4', stroke: '#704019', strokeThickness: 7 }).setOrigin(.5); this.add.text(900, 500, 'Khám phá đống rơm, bụi cây, chuồng gà,\ncây lớn và phía sau giỏ để tìm trứng.', { fontFamily: 'Nunito', fontSize: '23px', fontStyle: 'bold', align: 'center', color: '#fff', stroke: '#337262', strokeThickness: 5 }).setOrigin(.5); gameButton(this, 900, 700, "LET'S FIND!", 0xffbd55, () => this.playLevelTwo(), 310)
   }
   private playLevelTwo() {
     this.clear(); this.bg('LEVEL 2 · Tìm trứng ẩn'); this.heading('Find 10 eggs!', 'Chạm các khu vực để khám phá trứng ẩn nhé!')
     let found = 0; const counter = this.add.text(1260, 270, 'EGGS FOUND\n0 / 10', { fontFamily: 'Nunito', fontSize: '25px', fontStyle: 'bold', align: 'center', color: '#fff5b1', stroke: '#704019', strokeThickness: 6 }).setOrigin(.5)
     const areas: Array<[string, number, number]> = [['HAYSTACK · Đống rơm', 285, 555], ['GREEN BUSH · Bụi cây', 605, 690], ['CHICKEN COOP · Chuồng gà', 995, 450], ['BIG TREE · Cây lớn', 265, 355], ['BASKET · Giỏ', 1235, 685]]
-    areas.forEach(([name, x, y]) => { const zone = this.add.zone(x, y, 220, 170).setInteractive({ useHandCursor: true }); const label = this.add.text(x, y + 102, name, { fontFamily: 'Nunito', fontSize: '17px', fontStyle: 'bold', color: '#fff9d4', stroke: '#704019', strokeThickness: 4 }).setOrigin(.5); this.tweens.add({ targets: label, alpha: .6, duration: 800, yoyo: true, repeat: -1 }); zone.on('pointerdown', () => { if (found >= 10) return; for (let i = 0; i < 2 && found < 10; i += 1) { found += 1; const egg = this.add.image(x + (i ? 28 : -28), y - 15, 'drive-chicken-egg').setDisplaySize(75, 50).setDepth(5); this.tweens.add({ targets: egg, y: y - 80, scaleX: egg.scaleX * 1.13, scaleY: egg.scaleY * 1.13, duration: 180, yoyo: true, onComplete: () => egg.destroy() }); speakBilingual('Egg!', 'Quả trứng!') }; playSfx('success'); counter.setText(`EGGS FOUND\n${found} / 10`); if (found === 10) this.time.delayedCall(500, () => this.showLevelTwoComplete()) }) })
+    areas.forEach(([name, x, y]) => { const zone = this.add.zone(x, y, 220, 170).setInteractive({ useHandCursor: true }); const label = this.add.text(x, y + 102, name, { fontFamily: 'Nunito', fontSize: '17px', fontStyle: 'bold', color: '#fff9d4', stroke: '#704019', strokeThickness: 4 }).setOrigin(.5); this.tweens.add({ targets: label, alpha: .6, duration: 800, yoyo: true, repeat: -1 }); zone.on('pointerdown', () => { if (found >= 10 || !zone.input?.enabled) return; zone.disableInteractive(); label.setAlpha(1); for (let i = 0; i < 2 && found < 10; i += 1) { found += 1; const egg = this.add.image(x + (i ? 28 : -28), y - 15, 'drive-chicken-egg').setDisplaySize(75, 50).setDepth(5); this.tweens.add({ targets: egg, y: y - 80, scaleX: egg.scaleX * 1.13, scaleY: egg.scaleY * 1.13, duration: 180, yoyo: true, onComplete: () => egg.destroy() }); speakBilingual('Egg!', 'Quả trứng!') }; playSfx('success'); counter.setText(`EGGS FOUND\n${found} / 10`); if (found === 10) this.time.delayedCall(500, () => this.showLevelTwoComplete()) }) })
   }
   private showLevelTwoComplete() {
     this.clear(); this.bg('LEVEL 2 · Hoàn thành'); this.add.image(455, 585, 'drive-chicken-hen-happy').setDisplaySize(380, 265); this.add.text(870, 405, 'GREAT JOB!\nYOU FOUND ALL THE EGGS!', { fontFamily: 'Nunito', fontSize: '42px', fontStyle: 'bold', align: 'center', color: '#fff5b1', stroke: '#704019', strokeThickness: 8 }).setOrigin(.5); this.add.text(870, 520, 'Bé giỏi quá! Bé đã tìm đủ trứng!', { fontFamily: 'Nunito', fontSize: '25px', fontStyle: 'bold', color: '#fff', stroke: '#337262', strokeThickness: 5 }).setOrigin(.5); const store = useFarmStore.getState(); store.addItem('egg', 10); store.reward('chicken-farm:level-2', 1); store.complete('chicken-farm:level-2'); gameButton(this, 870, 720, 'VỀ NÔNG TRẠI', 0xff9c4c, () => this.scene.start('FarmMap'), 320)

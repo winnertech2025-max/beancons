@@ -200,3 +200,39 @@
 | Interaction feedback | PASS | A first touch now speaks the item, updates the live counter and gives a short highlighted cell response. A repeat touch replays only the word; it cannot corrupt progress. Real pointer QA reached `9 / 9 vật phẩm đã khám phá` before the CTA appeared. Screenshot: `test-results/artifacts/e2e-warehouse-Farm-Deliver-3e7d2-on-truck-loading-and-result-desktop/warehouse-prepare-complete.png`. |
 | Warehouse page flow | PASS | Ready → welcome → orders → preparation → delivery → result/mailbox uses a 150 ms fade-out and 180 ms fade-in, with a transition lock preventing duplicate taps. |
 | Browser regression | PASS | `npm run build`, `npm run lint`, and `npx playwright test tests/e2e/warehouse.spec.ts --workers=1 --reporter=line` passed. The focused suite verifies all four order-specific goods lists, portrait guard, the corrected nine shelf targets and no browser console/asset request failures. |
+
+# QA-CHICKEN-003 — Level 2 state isolation (2026-11-13)
+
+| Check | Result | Evidence |
+|---|---|---|
+| Delayed-state cleanup | PASS | Every Chicken state change now removes pending scene timer events before destroying its display objects. A delayed Level 1 callback can no longer redraw Step 1 over Level 2. |
+| Level identity | PASS | Level 2 uses the actual `TRANG TRẠI GÀ · LEVEL 2` title, rather than retaining the former hard-coded Level 1 HUD. |
+| Neutral tap regression | PASS | Real browser flow completed Level 1, opened the Level 2 briefing, tapped an unrelated illustration position, asserted Level 2 remained active, then started the egg-search map and completed all five discovery targets. `npm run build`, `npm run lint`, and `npx playwright test tests/e2e/chicken.spec.ts --workers=1 --reporter=line` passed. |
+
+# QA-CROP-003 — full real-pointer crop lifecycle (2026-11-13)
+
+| Check | Result | Evidence |
+|---|---|---|
+| Seed through harvest | PASS | Browser pointer input dragged the supplied seed bag, tapped the watering control, waited for the actual three pest targets, tapped every real worm position, fertilised, allowed the growth timer to finish, then tapped harvest. No scripted state was skipped. `npx playwright test tests/e2e/crop.spec.ts --workers=1 --reporter=line` passed. |
+| Pest interaction | PASS | The test waits for the live worm sprites rather than guessing fixed timing, then requires all three to be removed before fertiliser becomes available. This protects the authored pest beat against a false UI-only completion. |
+
+# QA-COW-005 — delivery input readiness (2026-11-13)
+
+| Check | Result | Evidence |
+|---|---|---|
+| Pre-arrival input | FIXED | Milk bottles remain visible while the truck drives in, but gain their drag target only after it arrives. A child can no longer drag a bottle into empty space and silently lose a delivery count. |
+| Full delivery replay | PASS | Real pointer flow completed feed → vocabulary → correct bucket → five paced milking taps → truck arrival → ten bottle drags → START → completed reward. The counter reached exactly `10 / 10`, persisted `cow-farm`, and recorded no console/request errors. `npx playwright test tests/e2e/cow.spec.ts --workers=1 --reporter=line` passed; evidence: `test-results/artifacts/e2e-cow-Cow-Farm-completes-02013-ery-with-real-pointer-input-desktop/cow-ten-bottles.png`. |
+
+# QA-MEMORY-001 — card-round state cleanup (2026-11-13)
+
+| Check | Result | Evidence |
+|---|---|---|
+| Real card input | PASS | A browser-pointer run selected the Animals pack, turned two physical cards and waited through the mismatch window. The active Level 1 round remained intact and no console/request error was reported. `npx playwright test tests/e2e/memory.spec.ts --workers=1 --reporter=line` passed; evidence: `test-results/artifacts/e2e-memory-Memory-Home-theme-and-ca-31af6-und-stable-desktop/memory-round-stable.png`. |
+| Delayed-round isolation | FIXED | Clearing a Memory round now removes old delayed mismatch callbacks and active tweens before replacing the display. An earlier pair can therefore not flip or lock cards belonging to a later round. |
+
+# QA-REGRESSION-006 — sequential human-input browser pass (2026-11-13)
+
+| Check | Result | Evidence |
+|---|---|---|
+| Cross-map regression | PASS | `npx playwright test --workers=1 --reporter=line` completed **11/11** tests in 5.0 minutes. This sequential run uses the real canvas/browser pointer paths for Chicken, Cow, Crop, Fishing, Map zones, Memory, Shop, Warehouse and opening flow; it is deliberately single-worker because all scenes stream large artwork bundles. |
+| Static verification | PASS | `npm run build`, `npm run lint` and `git diff --check` passed after the fixes. |

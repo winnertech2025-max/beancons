@@ -43,7 +43,9 @@ export class MemoryHomeScene extends BaseScene {
   }
   create() { this.showThemes() }
 
-  private clear() { this.cards = []; this.selected = []; this.locked = false; this.children.removeAll(true) }
+  // A mismatched pair schedules a delayed card flip.  Cancel it whenever the
+  // player switches screens so an old round cannot mutate a newly drawn one.
+  private clear() { this.time.removeAllEvents(); this.tweens.killAll(); this.cards = []; this.selected = []; this.locked = false; this.children.removeAll(true) }
   private background() { this.add.image(768, 512, 'drive-memory-home').setDisplaySize(1536, 1024); this.add.rectangle(768, 512, 1536, 1024, 0x173d4e, .16) }
 
   private showThemes() {
