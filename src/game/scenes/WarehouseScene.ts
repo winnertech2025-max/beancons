@@ -30,7 +30,16 @@ export class WarehouseScene extends BaseScene {
   create() { this.ready() }
   private clear() { this.tweens.killAll(); this.children.removeAll(true); this.locked = false }
   private bg(key: string, title: string, sub: string) { this.add.image(768, 512, key).setDisplaySize(1536, 1024); this.title(title, sub); this.backButton('FarmMap'); this.soundToggle() }
-  private artButton(key: string, x: number, y: number, w: number, onClick: () => void) { const b = this.add.image(x, y, key).setDisplaySize(w, w * (this.textures.get(key).getSourceImage().height / this.textures.get(key).getSourceImage().width)).setInteractive({ useHandCursor: true }); b.on('pointerover', () => this.tweens.add({ targets: b, scale: 1.06, duration: 110 })); b.on('pointerout', () => this.tweens.add({ targets: b, scale: 1, duration: 110 })); b.on('pointerdown', () => { playSfx('tap'); onClick() }); return b }
+  private artButton(key: string, x: number, y: number, w: number, onClick: () => void) {
+    const b = this.add.image(x, y, key).setDisplaySize(w, w * (this.textures.get(key).getSourceImage().height / this.textures.get(key).getSourceImage().width)).setInteractive({ useHandCursor: true })
+    // `setDisplaySize` creates a small scale for high-resolution source PNGs.
+    // Literal scale `1.06` reset that scale, which made the CTA enormous on hover.
+    const baseScaleX = b.scaleX; const baseScaleY = b.scaleY
+    b.on('pointerover', () => { this.tweens.killTweensOf(b); this.tweens.add({ targets: b, scaleX: baseScaleX * 1.04, scaleY: baseScaleY * 1.04, duration: 110 }) })
+    b.on('pointerout', () => { this.tweens.killTweensOf(b); this.tweens.add({ targets: b, scaleX: baseScaleX, scaleY: baseScaleY, duration: 110 }) })
+    b.on('pointerdown', () => { playSfx('tap'); onClick() })
+    return b
+  }
   private ready() { this.clear(); this.bg('wh-ready-bg', 'NHÀ KHO · FARM DELIVERY', 'Giao thức ăn đến các bạn động vật')
     this.add.image(760, 232, 'wh-truck').setDisplaySize(430, 286); this.add.image(768, 493, 'wh-ready-board').setDisplaySize(500, 400)
     this.artButton('wh-yes', 768, 600, 300, () => { speakBilingual("Let's deliver food to farm animals!", 'Cùng giao hàng cho các bạn động vật nhé!'); this.welcome() })
@@ -44,7 +53,7 @@ export class WarehouseScene extends BaseScene {
     this.artButton('wh-go', 1055, 760, 380, () => this.orders())
   }
   private orders() { this.clear(); this.bg('wh-orders-bg', 'ĐƠN HÀNG GIAO HÀNG', 'Chạm một đơn để xem bạn nào cần thức ăn')
-    const x = [260, 520, 780, 1040, 1300]; for (let i = 0; i < 5; i++) { const card = this.add.image(x[i], 515, `wh-order-${i}`).setDisplaySize(196, 294).setInteractive({ useHandCursor: true }); card.on('pointerover', () => this.tweens.add({ targets: card, scale: 1.04, duration: 100 })); card.on('pointerout', () => this.tweens.add({ targets: card, scale: 1, duration: 100 })); card.on('pointerdown', () => { this.selected = i; playSfx('select'); this.prepare() }) }
+    const x = [260, 520, 780, 1040, 1300]; for (let i = 0; i < 5; i++) { const card = this.add.image(x[i], 515, `wh-order-${i}`).setDisplaySize(196, 294).setInteractive({ useHandCursor: true }); const baseScaleX = card.scaleX; const baseScaleY = card.scaleY; card.on('pointerover', () => { this.tweens.killTweensOf(card); this.tweens.add({ targets: card, scaleX: baseScaleX * 1.04, scaleY: baseScaleY * 1.04, duration: 100 }) }); card.on('pointerout', () => { this.tweens.killTweensOf(card); this.tweens.add({ targets: card, scaleX: baseScaleX, scaleY: baseScaleY, duration: 100 }) }); card.on('pointerdown', () => { this.selected = i; playSfx('select'); this.prepare() }) }
     this.add.text(768, 826, 'Mỗi đơn có thời hạn 05:00 · Chọn đơn để chuẩn bị hàng', { fontFamily: 'Nunito', fontSize: '25px', fontStyle: 'bold', color: '#fff9d4', stroke: '#704019', strokeThickness: 6 }).setOrigin(.5)
   }
   private prepare() { this.clear(); this.bg('wh-prepare-bg', 'CHUẨN BỊ HÀNG HÓA', 'Chạm từng vật phẩm để nghe tiếng Anh trước, tiếng Việt sau')

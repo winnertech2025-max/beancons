@@ -140,9 +140,10 @@ export class FishingLakeScene extends BaseScene {
   private answerCard(texture: string, x: number, y: number, choice: string, target: string) {
     if (!this.textures.exists(texture)) return gameButton(this, x, y, choice.toUpperCase(), 0xffbd55, () => this.answer(choice, target), 300)
     const card = this.add.image(x, y, texture).setDisplaySize(226, 151).setInteractive({ useHandCursor: true })
-    card.on('pointerover', () => { this.tweens.killTweensOf(card); this.tweens.add({ targets: card, scale: 1.025, duration: 90, ease: 'Sine.Out' }) })
-    card.on('pointerout', () => { this.tweens.killTweensOf(card); this.tweens.add({ targets: card, scale: 1, duration: 90, ease: 'Sine.Out' }) })
-    card.on('pointerdown', () => { playSfx('tap'); this.tweens.add({ targets: card, scale: .94, yoyo: true, duration: 80, onComplete: () => this.answer(choice, target) }) })
+    const baseScaleX = card.scaleX; const baseScaleY = card.scaleY
+    card.on('pointerover', () => { this.tweens.killTweensOf(card); this.tweens.add({ targets: card, scaleX: baseScaleX * 1.025, scaleY: baseScaleY * 1.025, duration: 90, ease: 'Sine.Out' }) })
+    card.on('pointerout', () => { this.tweens.killTweensOf(card); this.tweens.add({ targets: card, scaleX: baseScaleX, scaleY: baseScaleY, duration: 90, ease: 'Sine.Out' }) })
+    card.on('pointerdown', () => { playSfx('tap'); this.tweens.add({ targets: card, scaleX: baseScaleX * .94, scaleY: baseScaleY * .94, yoyo: true, duration: 80, onComplete: () => this.answer(choice, target) }) })
   }
 
   private answer(choice: string, target: string) {

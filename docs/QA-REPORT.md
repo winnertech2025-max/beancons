@@ -133,3 +133,11 @@
 | Sheep Farm | PASS (initial beat) | The former dead/locked Sheep destination now opens a supplied-art scene. Three real `JUMP` presses reach the authored `Great job` response and both replay/home actions are present. |
 | Warehouse welcome layout | PASS | Replayed Ready → welcome with real canvas pointer input. The opaque white-background NPC export was replaced by the supplied transparent female pose; the authored LET'S GO button now preserves its 3:1 aspect ratio and stays inside the lower-right clear area. `test-results/artifacts/e2e-warehouse-Farm-Deliver-3e7d2-on-truck-loading-and-result-desktop/warehouse-welcome.png`. |
 | Full regression | PASS | `npm run build` and `npx playwright test --workers=1 --reporter=line` passed (3 tests). Sequential Playwright workers are intentional: parallel canvas runs on this macOS host caused false timeouts. No console error or failed asset request was recorded by the map/warehouse tests. |
+
+# QA-WAREHOUSE-003 — hover-scale regression (2026-11-13)
+
+| Check | Result | Evidence |
+|---|---|---|
+| Welcome CTA hover | PASS | Real pointer hover over LET'S GO retains the authored small 3:1 CTA and does not cover the dialogue or scene. Evidence: `test-results/artifacts/e2e-warehouse-Farm-Deliver-3e7d2-on-truck-loading-and-result-desktop/warehouse-welcome-hover.png`. |
+| Cause and fix | PASS | `setDisplaySize` gives high-resolution PNGs a fractional baseline scale. Warehouse CTA/order-card and Fishing answer-card hover/press tweens now multiply that baseline rather than resetting to literal scale `1`. |
+| Browser regression | PASS | `npm run build` and `npx playwright test tests/e2e/warehouse.spec.ts --reporter=line` passed; Ready → welcome → hover → orders → prepare → drag delivery → result had no console errors or failed requests. |
