@@ -32,6 +32,9 @@ test('Farm Delivery uses supplied art through ready, preparation, truck loading,
     await page.mouse.move(b.x + x / 1536 * b.width, b.y + 832 / 1024 * b.height)
     await page.mouse.down(); await page.waitForTimeout(35); await page.mouse.move(b.x + 900 / 1536 * b.width, b.y + 510 / 1024 * b.height, { steps: 8 }); await page.waitForTimeout(35); await page.mouse.up()
   }
+  // Capture the loaded truck before the success page replaces it. This is a
+  // visual regression check for the five authored dashed cargo cells.
+  await page.waitForTimeout(260); await page.screenshot({ path: testInfo.outputPath('warehouse-loaded-slots.png') })
   await page.waitForTimeout(1300); await page.screenshot({ path: testInfo.outputPath('warehouse-success.png') })
   // A single order must return to the mailbox, never falsely announce that
   // all deliveries are complete.

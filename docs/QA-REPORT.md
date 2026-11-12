@@ -236,3 +236,11 @@
 |---|---|---|
 | Cross-map regression | PASS | `npx playwright test --workers=1 --reporter=line` completed **11/11** tests in 5.0 minutes. This sequential run uses the real canvas/browser pointer paths for Chicken, Cow, Crop, Fishing, Map zones, Memory, Shop, Warehouse and opening flow; it is deliberately single-worker because all scenes stream large artwork bundles. |
 | Static verification | PASS | `npm run build`, `npm run lint` and `git diff --check` passed after the fixes. |
+
+# QA-WAREHOUSE-006 — cargo-cell placement correction (2026-11-13)
+
+| Check | Result | Evidence |
+|---|---|---|
+| Cargo placement | FIXED | Re-measured the five dashed cells in the supplied `Xe tải.PNG` at its actual rendered size. Loaded goods now snap to the three upper centres `(739,438)`, `(852,438)`, `(965,438)` and the two lower centres `(796,543)`, `(909,543)` instead of a fabricated horizontal row. |
+| Loaded-state clarity | FIXED | A source-item caption is destroyed only after its matching item has entered the truck, so labels cannot be left on the ground implying goods are still available. The result transition waits 1.2 seconds, giving the child time to see the fully loaded truck. |
+| Browser visual QA | PASS | Real pointer drags filled all five Cow-order cells; screenshot inspection confirms 3 milk bottles top and 2 carrots bottom, centred within their supplied outlines. `npm run build`, `npm run lint`, and `npx playwright test tests/e2e/warehouse.spec.ts --workers=1 --reporter=line` passed (3/3), with no console errors or genuine failed requests. Evidence: `test-results/artifacts/e2e-warehouse-Farm-Deliver-3e7d2-on-truck-loading-and-result-desktop/warehouse-loaded-slots.png`. |

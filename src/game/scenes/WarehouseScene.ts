@@ -131,10 +131,35 @@ export class WarehouseScene extends BaseScene {
     this.add.image(270, 440, order.card).setDisplaySize(225, 338); const timer = this.add.text(265, 694, '05:00', {fontFamily:'Nunito',fontSize:'41px',fontStyle:'bold',color:'#fff5b1',stroke:'#704019',strokeThickness:7}).setOrigin(.5)
     let left = 300; this.timerEvent = this.time.addEvent({ delay: 1000, repeat: 299, callback: () => { left--; timer.setText(`${String(Math.floor(left / 60)).padStart(2,'0')}:${String(left % 60).padStart(2,'0')}`); if (!left) this.failure() } })
     const startX = 540 - (order.items.length - 1) * 60
-    order.items.forEach((kind, i) => { const { texture, label } = DELIVERY_ITEMS[kind]; const homeX = startX + i * 120; const item = this.add.image(homeX, 832, texture).setDisplaySize(80, 80).setInteractive({useHandCursor:true}); this.add.text(homeX, 903,label,{fontFamily:'Nunito',fontSize:'13px',fontStyle:'bold',color:'#fff',stroke:'#704019',strokeThickness:4}).setOrigin(.5); item.on('pointerdown', (pointer: Phaser.Input.Pointer) => { if (this.locked || !item.input?.enabled) return; playSfx('tap'); const move = (p: Phaser.Input.Pointer) => item.setPosition(p.x, p.y); const finish = (p: Phaser.Input.Pointer) => { this.input.off('pointermove', move); if (p.x > 720 && p.x < 1240 && p.y > 340 && p.y < 660) { item.disableInteractive(); this.tweens.add({targets:item,x:760+this.loaded*93,y:510,duration:180}); this.loaded++; playSfx('drop'); if (this.loaded === order.items.length) this.success() } else this.tweens.add({targets:item,x:homeX,y:832,duration:180}) }; this.input.on('pointermove', move); this.input.once('pointerup', finish); move(pointer) }) })
+    // Centres measured from the five dashed cargo cells in the supplied truck
+    // PNG after it is rendered at 700 × 388 at (945, 515).  The old linear
+    // `760 + loaded * 93, 510` path put every item across one imaginary row,
+    // leaving the real cells visibly off-centre and overlapping their borders.
+    const cargoSlots: Array<[number, number]> = [[739, 438], [852, 438], [965, 438], [796, 543], [909, 543]]
+    order.items.forEach((kind, i) => {
+      const { texture, label } = DELIVERY_ITEMS[kind]; const homeX = startX + i * 120
+      const item = this.add.image(homeX, 832, texture).setDisplaySize(80, 80).setInteractive({ useHandCursor: true })
+      const caption = this.add.text(homeX, 903, label, { fontFamily: 'Nunito', fontSize: '13px', fontStyle: 'bold', color: '#fff', stroke: '#704019', strokeThickness: 4 }).setOrigin(.5)
+      item.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+        if (this.locked || !item.input?.enabled) return
+        playSfx('tap')
+        const move = (p: Phaser.Input.Pointer) => item.setPosition(p.x, p.y)
+        const finish = (p: Phaser.Input.Pointer) => {
+          this.input.off('pointermove', move)
+          if (p.x > 720 && p.x < 1240 && p.y > 340 && p.y < 660) {
+            item.disableInteractive(); caption.destroy()
+            const [slotX, slotY] = cargoSlots[this.loaded]
+            this.tweens.add({ targets: item, x: slotX, y: slotY, duration: 180, ease: 'Back.Out' })
+            this.loaded++; playSfx('drop')
+            if (this.loaded === order.items.length) this.success()
+          } else this.tweens.add({ targets: item, x: homeX, y: 832, duration: 180 })
+        }
+        this.input.on('pointermove', move); this.input.once('pointerup', finish); move(pointer)
+      })
+    })
     this.add.text(930, 765, `Kéo ${order.items.length} món hàng đúng theo đơn lên xe`, {fontFamily:'Nunito',fontSize:'24px',fontStyle:'bold',color:'#fff9d4',stroke:'#704019',strokeThickness:6}).setOrigin(.5)
   }
   private failure() { if (this.locked) return; this.locked = true; useFarmStore.getState().spend(1); playSfx('error'); speakBilingual('Time is up. Try again!', 'Hết giờ rồi. Bé bị trừ 1 ngôi sao, mình thử lại nhé!'); this.time.delayedCall(1300, () => this.changePage(() => this.orders())) }
-  private success() { if (this.locked) return; this.locked = true; const order = DELIVERY_ORDERS[this.selected]; this.delivered.add(order.id); useFarmStore.getState().reward(`warehouse-delivery:${order.id}`, 1); playSfx('success'); speakBilingual('Delivery success!', 'Giao hàng thành công!'); this.time.delayedCall(700, () => this.changePage(() => { this.clear(); this.bg('wh-success-bg', 'DELIVERY SUCCESS!', `Đơn ${this.delivered.size}/${DELIVERY_ORDERS.length} đã giao · Bé nhận 1 ngôi sao`); this.add.image(530, 580, 'wh-fish').setDisplaySize(300, 300); this.artButton('wh-next', 1000, 780, 320, () => this.changePage(() => this.delivered.size === DELIVERY_ORDERS.length ? this.complete() : this.orders())) })) }
+  private success() { if (this.locked) return; this.locked = true; const order = DELIVERY_ORDERS[this.selected]; this.delivered.add(order.id); useFarmStore.getState().reward(`warehouse-delivery:${order.id}`, 1); playSfx('success'); speakBilingual('Delivery success!', 'Giao hàng thành công!'); this.time.delayedCall(1200, () => this.changePage(() => { this.clear(); this.bg('wh-success-bg', 'DELIVERY SUCCESS!', `Đơn ${this.delivered.size}/${DELIVERY_ORDERS.length} đã giao · Bé nhận 1 ngôi sao`); this.add.image(530, 580, 'wh-fish').setDisplaySize(300, 300); this.artButton('wh-next', 1000, 780, 320, () => this.changePage(() => this.delivered.size === DELIVERY_ORDERS.length ? this.complete() : this.orders())) })) }
   private complete() { useFarmStore.getState().complete('warehouse-delivery'); this.clear(); this.bg('wh-success-bg', 'ALL DELIVERIES COMPLETED!', 'Bé đã giao đủ tất cả đơn hàng!'); this.add.text(WORLD_WIDTH/2, 520, '⭐ ⭐ ⭐\nTuyệt vời, Bé giao hàng giỏi quá!', {fontFamily:'Nunito',fontSize:'42px',fontStyle:'bold',align:'center',color:'#fff9d4',stroke:'#704019',strokeThickness:8}).setOrigin(.5); this.artButton('wh-next', 768, 760, 360, () => this.scene.start('FarmMap')) }
 }
