@@ -1,7 +1,7 @@
 import Phaser from 'phaser'
 import { BaseScene } from './BaseScene'
 import { gameButton } from '../objects/GameButton'
-import { playSfx, speakBilingual } from '../systems/AudioManager'
+import { playSfx, speakAnimal, speakBilingual, speakVietnamese } from '../systems/AudioManager'
 import { useFarmStore } from '../../store/gameStore'
 
 type CowStage = 'feed' | 'vocabulary' | 'chooseBucket' | 'milk' | 'load' | 'finish'
@@ -13,7 +13,7 @@ export class CowFarmScene extends BaseScene {
   preload() {
     [
       ['drive-cow-farm', '/assets/drive/backgrounds/cow-farm.png'], ['drive-cow-delivery-barn', '/assets/drive/backgrounds/cow-delivery-barn.png'],
-      ['drive-cow-grass', '/assets/drive/cow/grass.png'], ['drive-cow-hay', '/assets/drive/cow/hay.png'], ['drive-flower-bush', '/assets/drive/decorations/flower-bush.png'],
+      ['drive-cow-grass', '/assets/drive/cow/grass.png'], ['drive-cow-hay', '/assets/drive/cow/hay.png'], ['drive-flower-bush', '/assets/drive/decorations/flower-bush.png'], ['drive-cow-hungry', '/assets/drive/cow/cow-hungry.png'],
       ['drive-cow-selection-board', '/assets/drive/cow/selection-board.png'], ['drive-cow-milking-empty', '/assets/drive/cow/milking-scene-a.png'], ['drive-cow-milking-bucket', '/assets/drive/cow/milking-scene-b.png'], ['drive-cow-milking-full', '/assets/drive/cow/milking-scene-c.png'], ['drive-cow-truck', '/assets/drive/cow/truck.png'], ['drive-cow-bottle-milk', '/assets/drive/cow/bottle-milk.png'],
     ].forEach(([key, path]) => { if (!this.textures.exists(key)) this.load.image(key, path) })
   }
@@ -37,12 +37,25 @@ export class CowFarmScene extends BaseScene {
   }
   private addFood(texture: string, english: string, vietnamese: string, x: number, y: number, correct: boolean, width: number, height: number, cue: Phaser.GameObjects.Text) {
     const art = this.add.image(0, -22, texture).setDisplaySize(width, height); const en = this.add.text(0, 67, english, { fontFamily: 'Nunito', fontSize: '21px', fontStyle: 'bold', color: '#fff9d4', stroke: '#5d3922', strokeThickness: 5 }).setOrigin(.5); const vi = this.add.text(0, 91, vietnamese, { fontFamily: 'Nunito', fontSize: '17px', fontStyle: 'bold', color: '#fff', stroke: '#5d3922', strokeThickness: 4 }).setOrigin(.5)
-    const item = this.add.container(x, y, [art, en, vi]).setSize(150, 150).setInteractive({ draggable: true, useHandCursor: true }); this.foodObjects.push(item); this.input.setDraggable(item); item.on('pointerdown', () => { playSfx('select', .22); this.say(english, vietnamese) }); this.input.on('drag', (_p: Phaser.Input.Pointer, object: Phaser.GameObjects.GameObject, dragX: number, dragY: number) => { if (object === item) item.setPosition(dragX, dragY) })
+    const item = this.add.container(x, y, [art, en, vi]).setSize(150, 150).setInteractive({ draggable: true, useHandCursor: true }); this.foodObjects.push(item); this.input.setDraggable(item)
+    // Script 2 specifies two taps for vocabulary: English first, then Vietnamese.
+    let pronunciationTap = 0
+    item.on('pointerdown', () => { playSfx('select', .22); pronunciationTap += 1; if (pronunciationTap % 2 === 1) speakAnimal(english); else speakVietnamese(vietnamese) })
+    this.input.on('drag', (_p: Phaser.Input.Pointer, object: Phaser.GameObjects.GameObject, dragX: number, dragY: number) => { if (object === item) item.setPosition(dragX, dragY) })
     item.on('dragend', () => { if (this.stage !== 'feed') return; if (correct && Phaser.Math.Distance.Between(item.x, item.y, 565, 545) < 200) { playSfx('success'); this.foodObjects.forEach((food) => food.disableInteractive()); this.instruction.setText('Yummy! Thank you! · Ngon quá, cảm ơn bé!'); this.say('Yummy! Thank you!', 'Ngon quá, cảm ơn bé!'); cue.destroy(); item.destroy(); this.celebrate(565, 500); this.time.delayedCall(1300, () => this.showVocabulary()) } else { playSfx('error', .2); this.instruction.setText('Try again! · Bé thử lại nhé!'); this.say('Try again!', 'Bé thử lại nhé!'); this.tweens.add({ targets: item, x, y, duration: 320, ease: 'Back.Out' }); this.time.delayedCall(950, () => this.instruction.setText('Find the grass! · Hãy tìm cỏ!')) } })
   }
   private showVocabulary() {
     this.stage = 'vocabulary'; this.foodObjects.forEach((item) => item.destroy()); this.instruction.setText('Cùng nghe và nhắc lại các từ mới!'); this.add.rectangle(768, 525, 1536, 880, 0x183c46, .24).setDepth(10); this.add.image(768, 530, 'drive-notice-board').setDisplaySize(920, 615).setDepth(11); this.add.text(768, 336, 'TỪ VỰNG CỦA BÉ', { fontFamily: 'Nunito', fontSize: '35px', fontStyle: 'bold', color: '#704019', stroke: '#fff9ea', strokeThickness: 4 }).setOrigin(.5).setDepth(12)
-    const words: Array<[string, string, string]> = [['COW', 'Con bò', 'drive-star'], ['GRASS', 'Cỏ', 'drive-cow-grass'], ['HAY', 'Cỏ khô', 'drive-cow-hay'], ['FLOWER', 'Hoa', 'drive-flower-bush']]; words.forEach(([english, vietnamese, texture], index) => { const x = 545 + (index % 2) * 450; const y = 475 + Math.floor(index / 2) * 116; const icon = this.add.image(-132, 0, texture).setDisplaySize(index === 1 ? 74 : 54, 54); const en = this.add.text(-45, -12, english, { fontFamily: 'Nunito', fontSize: '26px', fontStyle: 'bold', color: '#75401c' }).setOrigin(0, .5); const vi = this.add.text(-45, 21, vietnamese, { fontFamily: 'Nunito', fontSize: '20px', fontStyle: 'bold', color: '#3e6577' }).setOrigin(0, .5); const word = this.add.container(x, y, [icon, en, vi]).setSize(340, 85).setDepth(12).setInteractive({ useHandCursor: true }); word.on('pointerdown', () => { playSfx('select', .2); speakBilingual(english, vietnamese); this.tweens.add({ targets: word, scale: 1.08, duration: 110, yoyo: true }) }) })
+    // The Level 1 script defines these four words exactly: Cow, Grass, Hay, Eat.
+    const words: Array<[string, string, string]> = [['COW', 'Con bò', 'drive-cow-hungry'], ['GRASS', 'Cỏ', 'drive-cow-grass'], ['HAY', 'Cỏ khô', 'drive-cow-hay'], ['EAT', 'Ăn', 'drive-cow-grass']]
+    words.forEach(([english, vietnamese, texture], index) => {
+      const x = 545 + (index % 2) * 450; const y = 475 + Math.floor(index / 2) * 116
+      const icon = this.add.image(-132, 0, texture).setDisplaySize(index === 0 ? 72 : index === 1 ? 74 : 54, 54)
+      const en = this.add.text(-45, -12, english, { fontFamily: 'Nunito', fontSize: '26px', fontStyle: 'bold', color: '#75401c' }).setOrigin(0, .5)
+      const vi = this.add.text(-45, 21, vietnamese, { fontFamily: 'Nunito', fontSize: '20px', fontStyle: 'bold', color: '#3e6577' }).setOrigin(0, .5)
+      const word = this.add.container(x, y, [icon, en, vi]).setSize(340, 85).setDepth(12).setInteractive({ useHandCursor: true })
+      word.on('pointerdown', () => { playSfx('select', .2); speakBilingual(english, vietnamese); this.tweens.add({ targets: word, scale: 1.08, duration: 110, yoyo: true }) })
+    })
     gameButton(this, 768, 735, 'TIẾP TỤC VẮT SỮA', 0xffbd55, () => this.scene.restart({ stage: 'chooseBucket' }), 360).setDepth(13)
   }
   private chooseBucket() {

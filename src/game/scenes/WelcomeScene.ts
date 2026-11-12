@@ -37,17 +37,25 @@ export class WelcomeScene extends BaseScene {
   }
 
   private menuButton(x: number, y: number, icon: string, label: string, action: () => void) {
-    const button = this.add.container(x, y).setSize(438, 130)
+    // Make the complete illustrated banner a real touch target.  Relying on
+    // the child image alone left small transparent parts of the art untappable
+    // on some browser/device scale combinations.
+    const button = this.add.container(x, y).setSize(438, 130).setInteractive({ useHandCursor: true })
     const banner = this.add.image(0, 0, 'drive-cow-banner').setDisplaySize(438, 146).setInteractive({ useHandCursor: true })
     const badge = this.add.image(-158, 0, icon).setDisplaySize(62, 62)
     // Banner's cow and icon consume both ends; keep text in its measured clear centre area.
     const text = this.add.text(-8, 0, label, { fontFamily: 'Nunito', fontSize: '24px', fontStyle: 'bold', color: '#6d3814', stroke: '#fffdf2', strokeThickness: 2 }).setOrigin(.5)
     button.add([banner, badge, text])
-    banner.on('pointerover', () => this.tweens.add({ targets: button, scaleX: 1.035, scaleY: 1.035, duration: 130, ease: 'Back.Out' }))
-    banner.on('pointerout', () => this.tweens.add({ targets: button, scaleX: 1, scaleY: 1, duration: 130, ease: 'Sine.Out' }))
-    banner.on('pointerdown', () => {
+    const hoverIn = () => this.tweens.add({ targets: button, scaleX: 1.035, scaleY: 1.035, duration: 130, ease: 'Back.Out' })
+    const hoverOut = () => this.tweens.add({ targets: button, scaleX: 1, scaleY: 1, duration: 130, ease: 'Sine.Out' })
+    let activating = false
+    const activate = () => {
+      if (activating) return
+      activating = true
       this.tweens.add({ targets: button, scaleX: .96, scaleY: .96, duration: 80, yoyo: true, ease: 'Quad.Out', onComplete: action })
-    })
+    }
+    button.on('pointerover', hoverIn); button.on('pointerout', hoverOut); button.on('pointerdown', activate)
+    banner.on('pointerover', hoverIn); banner.on('pointerout', hoverOut); banner.on('pointerdown', activate)
   }
 
   private showHelp() {

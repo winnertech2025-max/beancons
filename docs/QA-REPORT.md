@@ -71,10 +71,19 @@
 | Two-step fishing interaction | PASS | Real pointer clicks on the moving `THẢ CẦN` control, then `KÉO CẦN`, showed the catch only after reeling; a correct Fish answer advanced to Level 2. |
 | Level 2 answer/retry | PASS | The caught asset is `l02-1` (Frog); the visibly labelled Frog answer is mapped to `l02-2`. A real click on Eel retained the Level 2 round; a real click on Frog advanced to `HỒ NƯỚC · LEVEL 3`. The cast instruction is hidden once answers appear. | `/tmp/hf-fishing-level2-clean-hud.png`, `/tmp/hf-fishing-level3-after-frog.png` |
 | Card scale | PASS | Answer cards render at `226×151`; hover peaks at `1.025` and active tweens are cancelled before a new hover transition, preventing the previous oversized/stuck state. |
-| Farm map zones | PASS | A real hover over the Lake shows a bright outline across the whole target area; pointer click opens `FishingLake`, not only its caption. | `/tmp/hf-map-lake-hover-glow.png` |
+| Farm map zones | SUPERSEDED | The former ellipse glow was functional but did not match the artwork silhouette, so it was removed rather than retained as a false-quality hover state. Direct illustrated-zone tapping remains verified. | See `QA-MAP-002`; exact zone PNG overlays are required for the intended glow. |
 | Crop result readability | PASS | The generic rectangle was replaced by the supplied notice-board art; the full real Crop lifecycle (drag → water → pest → fertilise → 10-second timer → harvest) was replayed. The final overlay hides stale task copy and keeps its success hierarchy readable. | `/tmp/hf-crop-reward-board-fixed.png` |
 
 **Open asset limitation (not hidden):** the repository and the previously supplied Fishing Drive folder contain the 20 level folders/cards, but no standalone transparent asset of the girl sitting in a boat. The fishing rod remains a compact temporary interaction control until the exact parent Drive folder/file URL for that PNG is supplied. Level 18 has Cuttlefish art but no matching Squid answer card, so it is deliberately marked unavailable instead of teaching the wrong word.
+
+# QA-MAP-002 — remove incorrect temporary hover outline
+
+**Date:** 2026-11-12
+
+| Check | Result | Evidence |
+|---|---|---|
+| Map click target | PASS | With Lake unlocked, a real pointer click on the illustrated Lake area entered `FishingLake`; no console or failed-request errors. | `/tmp/hf-map-no-false-outline.png` |
+| Exact visual hover outline | BLOCKED | The earlier ellipse was visibly misaligned with the farm illustrations and has been removed. No transparent per-zone overlay/silhouette PNG exists in the local workspace, so a substitute outline is intentionally not drawn. | Requires the client’s exact Drive folder/file link or files synced to `public/assets/drive/map-zones/`. |
 
 # QA-COW-004 — Kịch bản 2 delivery correction
 
@@ -89,3 +98,29 @@
 | Bilingual order | PASS (implemented) | Cow narration now calls English then Vietnamese for hunger, food names, find/retry/success, bucket, milking, truck, counting and goodbye. Chicken meet/retry/success, Crop harvest, Fishing catch/retry and Memory pair/retry narration now follow the same ordering. Actual Vietnamese speech requires a Vietnamese system voice; the browser never sends Vietnamese text to an English voice. |
 
 **Asset audit:** no newly synced cursor/hand-touch PNG was present in `public/assets/drive` at this test time, so no fake hand was added. The supplied seed bag is already used by Crop Farm; its updated file will be used automatically when it replaces `public/assets/drive/items/seed-bag.png`. The provided second Chicken Level 2 background is likewise not present locally under a distinct file name, so it is not guessed or substituted.
+
+# QA-BOOT-004 — opening handoff and full start banner hit target
+
+**Date:** 2026-11-12
+
+| Check | Result | Evidence |
+|---|---|---|
+| Loading → Welcome | PASS | The regression test waited through the real loading handoff and reached `Welcome` without a stalled screen. |
+| Start interaction | PASS | A real pointer click at the centre of the illustrated “BẮT ĐẦU KHÁM PHÁ” banner entered `Avatar`. The complete banner container is now the touch target, avoiding transparent-pixel dead zones in the artwork. |
+| Console / requests | PASS | The test observed no console errors or failed requests. |
+
+`npm run build` and `npm run test:e2e` passed on 2026-11-12. This test covers only the opening regression; it does not certify the unfinished minigames.
+# QA-WAREHOUSE-001 — Farm Delivery (2026-11-12)
+
+- Build: PASS — `npm run build` completed after registering `WarehouseScene`.
+- Browser flow: PASS — Playwright used real mouse input on the canvas: Ready → farmer welcome → order card → all nine supplied shelf items → Start Loading → dragged five goods into the five truck slots → success → final screen → Farm Map. Evidence: `test-results/artifacts/e2e-warehouse-Farm-Deliver-3e7d2-on-truck-loading-and-result-desktop/warehouse-{ready,prepare,delivery,success}.png`.
+- Network/console: PASS — the test records no failed asset request and no console error.
+- Script coverage: supplied Ready/Exit/Let's Go art, bilingual spoken prompts, order cards, vocabulary exploration gate, 05:00 countdown, real drag-to-truck interaction, reward, final completion and Home return are implemented.
+- Limitation recorded: the five currently supplied order cards do not match the written `Kịch bản 2.docx` quantities/names in every case. The delivered Cow card itself says 3 milk + 2 carrots, so that exact supplied card is the playable first delivery. The remaining cards are shown in the mailbox but must be wired to their exact per-card stock rules when Chicken/Sheep harvest inventory is completed.
+
+# QA-WAREHOUSE-002 — renamed Drive source assets / female NPC (2026-11-12)
+
+- Drive verification: PASS — refreshed the shared Kho folder recursively and found the renamed authored assets, including `Chào mừng (2)/Npc nữ.png`, `Let’s go.png`, `Thoại.png`, the original numbered source screens, plus the separately supplied `Exit.png` button.
+- Visual correction: PASS — Warehouse welcome now loads `Npc nữ.png` (Bé Nông Dân), replacing the old male farmer asset. The Ready screen no longer presents Exit alongside Start; Exit belongs in Settings as requested.
+- Build and browser: PASS — `npm run build` passed; the actual canvas QA flow (`tests/e2e/warehouse.spec.ts`) passed after the renamed assets were wired, with no failed requests or console errors.
+- Outstanding asset: the linked Kho folder contains `Exit.png` (the red Exit button) but not the full bilingual confirmation-board illustration shown in the attached screenshot, nor a separate Settings panel asset. I have not fabricated that illustration; it needs to be placed in the shared folder before the exact board can replace the current settings confirmation UI.
