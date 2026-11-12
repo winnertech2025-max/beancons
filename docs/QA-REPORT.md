@@ -191,3 +191,12 @@
 | Crop pest beat | PASS (implementation) | Replaced the former `BẮT SÂU` skip button with three supplied worm-art targets. Each must be touched and gives bilingual feedback before fertilising can begin. Build and lint passed; full crop pointer regression remains required. |
 | Farm Shop | PASS | Added Farm Shop navigation from the map and a real star-spend/owned-item loop with the supplied tree, flower-bush and sunflower PNGs. No source artwork was altered. `tests/e2e/shop.spec.ts` covers purchase persistence and screenshot capture. |
 | Fishing persistence | PASS (implementation) | The current unlocked Fishing level is now saved as best progress rather than being reset to Level 1 when the child exits/re-enters. Level 18 and Levels 21–40 remain blocked by missing/contradictory supplied lesson data; they are not invented. |
+
+# QA-WAREHOUSE-005 — exact shelf hit targets and page transitions (2026-11-13)
+
+| Check | Result | Evidence |
+|---|---|---|
+| Shelf target geometry | PASS | Re-measured all nine cells against the supplied preparation-board image. Corn/Grass/Carrot/Water now use centres `529/686/842/990, 340`; Milk/Egg/Worm/Pumpkin/Cabbage use `508/646/775/904/1038, 500`. The former generic coordinate grid was removed. |
+| Interaction feedback | PASS | A first touch now speaks the item, updates the live counter and gives a short highlighted cell response. A repeat touch replays only the word; it cannot corrupt progress. Real pointer QA reached `9 / 9 vật phẩm đã khám phá` before the CTA appeared. Screenshot: `test-results/artifacts/e2e-warehouse-Farm-Deliver-3e7d2-on-truck-loading-and-result-desktop/warehouse-prepare-complete.png`. |
+| Warehouse page flow | PASS | Ready → welcome → orders → preparation → delivery → result/mailbox uses a 150 ms fade-out and 180 ms fade-in, with a transition lock preventing duplicate taps. |
+| Browser regression | PASS | `npm run build`, `npm run lint`, and `npx playwright test tests/e2e/warehouse.spec.ts --workers=1 --reporter=line` passed. The focused suite verifies all four order-specific goods lists, portrait guard, the corrected nine shelf targets and no browser console/asset request failures. |
