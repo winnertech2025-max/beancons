@@ -16,7 +16,10 @@ const VIETNAMESE_WORD: Record<string, string> = {
 // assumption. It prevents a child selecting the visible Frog card and being
 // marked wrong because a different slot happened to be named first.
 const LEVELS: FishingRound[] = [
-  { target: 'Fish', caughtTexture: 'l01-1', answers: [{ word: 'Fish', texture: 'l01-2' }, { word: 'Crab', texture: 'l01-3' }] },
+  // Level 1 is the lone folder whose first PNG is the labelled Fish answer
+  // card and whose second PNG is the unlabelled caught fish.  The old mapping
+  // inverted them; all later levels already follow their actual artwork role.
+  { target: 'Fish', caughtTexture: 'l01-2', answers: [{ word: 'Fish', texture: 'l01-1' }, { word: 'Crab', texture: 'l01-3' }] },
   { target: 'Frog', caughtTexture: 'l02-1', answers: [{ word: 'Frog', texture: 'l02-2' }, { word: 'Eel', texture: 'l02-3' }] },
   { target: 'Crab', caughtTexture: 'l03-3', answers: [{ word: 'Fish', texture: 'l03-1' }, { word: 'Crab', texture: 'l03-2' }] },
   { target: 'Turtle', caughtTexture: 'l04-3', answers: [{ word: 'Frog', texture: 'l04-1' }, { word: 'Turtle', texture: 'l04-2' }] },

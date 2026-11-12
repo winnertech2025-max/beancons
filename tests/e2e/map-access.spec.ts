@@ -34,7 +34,10 @@ test('every illustrated Farm Map destination is available without completion gat
     await page.screenshot({ path: testInfo.outputPath(`map-${label}.png`) })
     if (label === 'sheep') {
       for (let jump = 0; jump < 3; jump++) { await point(768, 850); await page.waitForTimeout(450) }
-      await page.screenshot({ path: testInfo.outputPath('map-sheep-complete.png') })
+      await expect.poll(() => page.evaluate(() => window.__HAPPY_FARM_QA__?.objects('SheepFarm').some(object => object.labels?.includes('LƯỢT TIẾP THEO')))).toBe(true)
+      await page.screenshot({ path: testInfo.outputPath('map-sheep-next-round.png') })
+      await point(768, 850)
+      await expect.poll(() => page.evaluate(() => window.__HAPPY_FARM_QA__?.objects('SheepFarm').some(object => object.text === 'LƯỢT 2 · Jump three times!'))).toBe(true)
     }
     await point(104, 70)
     await expect.poll(() => page.evaluate(() => (window.__HAPPY_FARM_QA__?.scenes() ?? []).at(-1)), { timeout: 4_000 }).toBe('FarmMap')

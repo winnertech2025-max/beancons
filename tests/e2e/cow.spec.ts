@@ -23,7 +23,9 @@ test('Cow Farm completes feed, bucket, milk and ten-bottle delivery with real po
     await page.waitForTimeout(100)
   }
   await page.screenshot({ path: testInfo.outputPath('cow-ten-bottles.png') })
-  await point(768,890); await page.waitForTimeout(1_600)
+  await point(768,890); await page.waitForTimeout(1_850)
+  await page.screenshot({ path: testInfo.outputPath('cow-truck-departing-with-milk.png') })
+  await page.waitForTimeout(550)
   await expect.poll(() => page.evaluate(() => window.__HAPPY_FARM_QA__?.state().completedActivities.includes('cow-farm'))).toBe(true)
   expect(errors).toEqual([]); expect(failures).toEqual([])
 })

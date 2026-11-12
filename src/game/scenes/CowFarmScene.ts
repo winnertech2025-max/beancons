@@ -13,7 +13,7 @@ export class CowFarmScene extends BaseScene {
   preload() {
     [
       ['drive-cow-farm', '/assets/drive/backgrounds/cow-farm.png'], ['drive-cow-delivery-barn', '/assets/drive/backgrounds/cow-delivery-barn.png'],
-      ['drive-cow-grass', '/assets/drive/cow/grass.png'], ['drive-cow-hay', '/assets/drive/cow/hay.png'], ['drive-flower-bush', '/assets/drive/decorations/flower-bush.png'], ['drive-cow-hungry', '/assets/drive/cow/cow-hungry.png'],
+      ['drive-cow-grass', '/assets/drive/cow/grass.png'], ['drive-cow-hay', '/assets/drive/cow/hay.png'], ['drive-cow-flower', '/assets/drive/cow/flower.png'], ['drive-cow-npc', '/assets/drive/npc-2026/cow-happy.png'],
       ['drive-cow-selection-board', '/assets/drive/cow/selection-board.png'], ['drive-cow-milking-empty', '/assets/drive/cow/milking-scene-a.png'], ['drive-cow-milking-bucket', '/assets/drive/cow/milking-scene-b.png'], ['drive-cow-milking-full', '/assets/drive/cow/milking-scene-c.png'], ['drive-cow-truck', '/assets/drive/cow/truck.png'], ['drive-cow-bottle-milk', '/assets/drive/cow/bottle-milk.png'],
     ].forEach(([key, path]) => { if (!this.textures.exists(key)) this.load.image(key, path) })
   }
@@ -33,7 +33,7 @@ export class CowFarmScene extends BaseScene {
   private startFeed() {
     this.instruction.setText('“I\'m hungry!” · “Tôi đói quá!”'); const cue = this.add.text(510, 590, 'HÃY THẢ THỨC ĂN VÀO BÒ', { fontFamily: 'Nunito', fontSize: '18px', fontStyle: 'bold', color: '#fff8c7', stroke: '#42753e', strokeThickness: 5 }).setOrigin(.5)
     this.tweens.add({ targets: cue, alpha: .55, duration: 800, yoyo: true, repeat: -1 }); this.time.delayedCall(450, () => this.say("I'm hungry!", 'Tôi đói quá!')); this.time.delayedCall(1500, () => { if (this.stage === 'feed') { this.instruction.setText('Find the grass! · Hãy tìm cỏ!'); this.say('Find the grass!', 'Hãy tìm cỏ!') } })
-    this.addFood('drive-cow-grass', 'GRASS', 'CỎ', 1090, 790, true, 140, 72, cue); this.addFood('drive-cow-hay', 'HAY', 'CỎ KHÔ', 1270, 790, false, 130, 88, cue); this.addFood('drive-flower-bush', 'FLOWERS', 'HOA', 1435, 790, false, 116, 108, cue)
+    this.addFood('drive-cow-grass', 'GRASS', 'CỎ', 1090, 790, true, 140, 72, cue); this.addFood('drive-cow-hay', 'HAY', 'CỎ KHÔ', 1270, 790, false, 130, 88, cue); this.addFood('drive-cow-flower', 'FLOWER', 'HOA', 1435, 790, false, 116, 108, cue)
   }
   private addFood(texture: string, english: string, vietnamese: string, x: number, y: number, correct: boolean, width: number, height: number, cue: Phaser.GameObjects.Text) {
     const art = this.add.image(0, -22, texture).setDisplaySize(width, height); const en = this.add.text(0, 67, english, { fontFamily: 'Nunito', fontSize: '21px', fontStyle: 'bold', color: '#fff9d4', stroke: '#5d3922', strokeThickness: 5 }).setOrigin(.5); const vi = this.add.text(0, 91, vietnamese, { fontFamily: 'Nunito', fontSize: '17px', fontStyle: 'bold', color: '#fff', stroke: '#5d3922', strokeThickness: 4 }).setOrigin(.5)
@@ -46,11 +46,13 @@ export class CowFarmScene extends BaseScene {
   }
   private showVocabulary() {
     this.stage = 'vocabulary'; this.foodObjects.forEach((item) => item.destroy()); this.instruction.setText('Cùng nghe và nhắc lại các từ mới!'); this.add.rectangle(768, 525, 1536, 880, 0x183c46, .24).setDepth(10); this.add.image(768, 530, 'drive-notice-board').setDisplaySize(920, 615).setDepth(11); this.add.text(768, 336, 'TỪ VỰNG CỦA BÉ', { fontFamily: 'Nunito', fontSize: '35px', fontStyle: 'bold', color: '#704019', stroke: '#fff9ea', strokeThickness: 4 }).setOrigin(.5).setDepth(12)
-    // The Level 1 script defines these four words exactly: Cow, Grass, Hay, Eat.
-    const words: Array<[string, string, string]> = [['COW', 'Con bò', 'drive-cow-hungry'], ['GRASS', 'Cỏ', 'drive-cow-grass'], ['HAY', 'Cỏ khô', 'drive-cow-hay'], ['EAT', 'Ăn', 'drive-cow-grass']]
+    // The script's four flashcards are Cow, Grass, Hay and Flower. The old
+    // Cow key was a full farm background, which is why the card showed a tiny
+    // landscape instead of the animal; use the supplied transparent cow NPC.
+    const words: Array<[string, string, string]> = [['COW', 'Con bò', 'drive-cow-npc'], ['GRASS', 'Cỏ', 'drive-cow-grass'], ['HAY', 'Cỏ khô', 'drive-cow-hay'], ['FLOWER', 'Hoa', 'drive-cow-flower']]
     words.forEach(([english, vietnamese, texture], index) => {
       const x = 545 + (index % 2) * 450; const y = 475 + Math.floor(index / 2) * 116
-      const icon = this.add.image(-132, 0, texture).setDisplaySize(index === 0 ? 72 : index === 1 ? 74 : 54, 54)
+      const icon = this.add.image(-132, 0, texture).setDisplaySize(index === 0 ? 64 : index === 1 ? 74 : 54, 54)
       const en = this.add.text(-45, -12, english, { fontFamily: 'Nunito', fontSize: '26px', fontStyle: 'bold', color: '#75401c' }).setOrigin(0, .5)
       const vi = this.add.text(-45, 21, vietnamese, { fontFamily: 'Nunito', fontSize: '20px', fontStyle: 'bold', color: '#3e6577' }).setOrigin(0, .5)
       const word = this.add.container(x, y, [icon, en, vi]).setSize(340, 85).setDepth(12).setInteractive({ useHandCursor: true })
@@ -87,8 +89,11 @@ export class CowFarmScene extends BaseScene {
     this.instruction.setText('The truck is here! · Xe tải đến rồi!')
     const truck = this.add.image(-270, 655, 'drive-cow-truck').setDisplaySize(430, 286).setDepth(3)
     const lamp = this.add.circle(-375, 573, 11, 0xffef59, .95).setDepth(4)
+    // The delivery beat is a focused moment: dim the barn behind the arriving
+    // truck, but keep the supplied art and the moving vehicle fully visible.
+    const arrivalShade = this.add.rectangle(768, 512, 1536, 1024, 0x091421, 0).setDepth(2)
     const bottles: Phaser.GameObjects.Image[] = []
-    this.tweens.add({ targets: truck, x: 1050, duration: 1150, ease: 'Sine.Out', onComplete: () => {
+    this.tweens.add({ targets: [truck, lamp], x: '+=1320', duration: 1150, ease: 'Sine.Out', onStart: () => this.tweens.add({ targets: arrivalShade, alpha: .3, duration: 340, ease: 'Sine.Out' }), onComplete: () => {
       lamp.setPosition(truck.x - 105, truck.y - 82)
       this.say('The truck is here!', 'Xe tải đến rồi!')
       this.instruction.setText(`Drag the milk bottles onto the truck! · Kéo bình sữa lên xe! · 0 / ${totalBottles}`)
@@ -106,18 +111,19 @@ export class CowFarmScene extends BaseScene {
       this.input.on('drag', (_p: Phaser.Input.Pointer, object: Phaser.GameObjects.GameObject, x: number, y: number) => { if (object === bottle) bottle.setPosition(x, y) })
       bottle.on('dragend', () => {
         if (Phaser.Math.Distance.Between(bottle.x, bottle.y, truck.x, truck.y) > 275) { playSfx('error', .2); this.tweens.add({ targets: bottle, x: originX, y: originY, duration: 260, ease: 'Back.Out' }); return }
-        bottle.disableInteractive(); loaded += 1; playSfx('drop'); this.say(numberWords[loaded - 1][0], numberWords[loaded - 1][1]); loadedLabel.setText(`BÌNH SỮA: ${loaded} / ${totalBottles}`)
+        bottle.disableInteractive(); loaded += 1; playSfx('drop'); this.say(numberWords[loaded - 1][0], numberWords[loaded - 1][1]); loadedLabel.setText(`BÌNH SỮA: ${loaded} / ${totalBottles}`); this.instruction.setText(`Drag the milk bottles onto the truck! · Kéo bình sữa lên xe! · ${loaded} / ${totalBottles}`)
         // `setDisplaySize` establishes a texture-specific base scale. Tweening
         // `scale: .55` would overwrite it and blow the supplied bottle art up.
-        this.tweens.add({ targets: bottle, x: truck.x - 15 + (loaded % 3) * 30, y: truck.y - 56 - Math.floor((loaded - 1) / 3) * 20, scaleX: bottle.scaleX * .55, scaleY: bottle.scaleY * .55, duration: 230, ease: 'Back.Out' })
+        this.tweens.add({ targets: bottle, x: truck.x - 148 + ((loaded - 1) % 5) * 35, y: truck.y - 82 - Math.floor((loaded - 1) / 5) * 36, scaleX: bottle.scaleX * .48, scaleY: bottle.scaleY * .48, duration: 230, ease: 'Back.Out' })
         if (loaded !== totalBottles) return
         this.time.delayedCall(850, () => {
           this.say('Goodbye, have a safe trip!', 'Chào tạm biệt, chúc chuyến đi an toàn!')
-          this.instruction.setText('Tap START to begin the delivery! · Chạm START để xe khởi hành!')
+          this.instruction.setText('All 10 bottles are loaded! · Đã xếp đủ 10 bình sữa! Chạm START để xe khởi hành!')
           gameButton(this, 768, 890, 'START', 0xffbd55, () => {
             playSfx('bong'); lamp.setAlpha(1)
             this.tweens.add({ targets: truck, y: truck.y - 13, scaleY: .94, duration: 140, yoyo: true, repeat: 3, ease: 'Sine.InOut', onComplete: () => {
-              this.tweens.add({ targets: [truck, lamp], x: '+=850', duration: 1150, ease: 'Sine.In', onComplete: () => this.scene.restart({ stage: 'finish' }) })
+              // Bottles were loaded onto this truck; they must leave with it.
+              this.tweens.add({ targets: [truck, lamp, ...bottles], x: '+=850', duration: 1150, ease: 'Sine.In', onComplete: () => this.scene.restart({ stage: 'finish' }) })
             } })
           }, 250)
         })

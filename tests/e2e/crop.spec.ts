@@ -15,7 +15,9 @@ test('Crop Farm plays every real interaction from seed to harvest', async ({ pag
   await expect.poll(() => page.evaluate(() => window.__HAPPY_FARM_QA__?.objects('CropFarm').filter(object => object.texture === 'drive-crop-worm') ?? []), { timeout: 3_000 }).toHaveLength(3)
   const worms = await page.evaluate(() => window.__HAPPY_FARM_QA__?.objects('CropFarm').filter(object => object.texture === 'drive-crop-worm'))
   if (!worms || worms.length !== 3 || worms.some(worm => worm.x === undefined || worm.y === undefined)) throw new Error(`Worm targets missing: ${JSON.stringify(worms)}`)
-  for (const worm of worms) await point(worm.x!, worm.y!)
+  // The supplied bug net must be dragged over each real worm; a direct worm
+  // tap would bypass the authored tool interaction.
+  for (const worm of worms) { await drag([1260, 835], [worm.x!, worm.y!]); await page.waitForTimeout(260) }
   await page.waitForTimeout(500); await point(768, 850); await page.waitForTimeout(10_700)
   await page.screenshot({ path: testInfo.outputPath('crop-harvest-ready.png') })
   await point(768, 890)

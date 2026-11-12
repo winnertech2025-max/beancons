@@ -6,6 +6,7 @@ import { playSfx, speakBilingual } from '../systems/AudioManager'
 export class SheepFarmScene extends BaseScene {
   private jumps = 0
   private busy = false
+  private round = 1
 
   constructor() { super('SheepFarm') }
 
@@ -13,12 +14,14 @@ export class SheepFarmScene extends BaseScene {
     if (!this.textures.exists('drive-sheep-farm')) this.load.image('drive-sheep-farm', '/assets/drive/backgrounds/sheep-farm.png')
   }
 
+  init(data: { round?: number }) { this.round = data.round ?? 1; this.jumps = 0; this.busy = false }
+
   create() {
     this.add.image(768, 512, 'drive-sheep-farm').setDisplaySize(1536, 1024)
     this.title('TRANG TRẠI CỪU', 'Sheep Farm · Lắng nghe và đếm từng cú nhảy')
     this.backButton('FarmMap')
     this.soundToggle()
-    this.add.text(768, 170, 'Jump three times!', { fontFamily: 'Nunito', fontSize: '42px', fontStyle: 'bold', color: '#fff9d4', stroke: '#704019', strokeThickness: 8 }).setOrigin(.5)
+    this.add.text(768, 170, `LƯỢT ${this.round} · Jump three times!`, { fontFamily: 'Nunito', fontSize: '42px', fontStyle: 'bold', color: '#fff9d4', stroke: '#704019', strokeThickness: 8 }).setOrigin(.5)
     this.add.text(768, 218, 'Nhấn JUMP 3 lần để các bạn cừu cùng vượt rào nhé!', { fontFamily: 'Nunito', fontSize: '24px', fontStyle: 'bold', color: '#fff', stroke: '#337262', strokeThickness: 5 }).setOrigin(.5)
     const counter = this.add.text(768, 292, '0 / 3', { fontFamily: 'Nunito', fontSize: '58px', fontStyle: 'bold', color: '#fff5b1', stroke: '#704019', strokeThickness: 9 }).setOrigin(.5)
     speakBilingual('Jump three times!', 'Nhảy ba lần nhé!')
@@ -44,7 +47,8 @@ export class SheepFarmScene extends BaseScene {
     playSfx('success'); speakBilingual('Great job!', 'Bé đã nhảy đủ ba lần rồi!')
     counter.setText('3 / 3 · GREAT JOB!').setFontSize(42)
     jump.destroy()
-    gameButton(this, 768, 850, 'CHƠI LẠI', 0xffbd55, () => this.scene.restart(), 250)
-    gameButton(this, 1080, 850, 'VỀ NÔNG TRẠI', 0xff9c4c, () => this.scene.start('FarmMap'), 300)
+    // The script says a completed three-jump turn advances to the next turn;
+    // it must not end the entire Sheep Farm on the first three presses.
+    gameButton(this, 768, 850, 'LƯỢT TIẾP THEO', 0xffbd55, () => this.scene.restart({ round: this.round + 1 }), 300)
   }
 }

@@ -8,13 +8,13 @@ type CropStage = 'seed' | 'water' | 'pest' | 'fertilize' | 'grow' | 'harvest'
 
 /** Script module 2: a real crop lifecycle, persisted through the shared farm store. */
 export class CropFarmScene extends BaseScene {
-  private stage: CropStage = 'seed'; private stageText!: Phaser.GameObjects.Text; private instruction!: Phaser.GameObjects.Text; private translation!: Phaser.GameObjects.Text; private action?: Phaser.GameObjects.Container
+  private stage: CropStage = 'seed'; private stageText!: Phaser.GameObjects.Text; private instruction!: Phaser.GameObjects.Text; private translation!: Phaser.GameObjects.Text; private action?: Phaser.GameObjects.Container; private garden!: Phaser.GameObjects.Image
   constructor() { super('CropFarm') }
   preload() {
-    [['drive-crop-farm', '/assets/drive/backgrounds/crop-farm.png'], ['drive-seed-bag', '/assets/drive/items/seed-bag.png'], ['drive-watering-can', '/assets/drive/tools/watering-can.png'], ['drive-garden-fork', '/assets/drive/tools/garden-fork.png'], ['drive-crop-worm', '/assets/drive/warehouse/Giao hàng (5)/Sâu.png'], ['drive-notice-board', '/assets/drive/ui/notice-board.png']].forEach(([key, path]) => { if (!this.textures.exists(key)) this.load.image(key, path) })
+    [['drive-crop-empty', '/assets/drive/crop-2026/bed-empty.png'], ['drive-crop-seeds', '/assets/drive/crop-2026/bed-seeds.png'], ['drive-crop-sprouts', '/assets/drive/crop-2026/bed-sprouts.png'], ['drive-seed-bag', '/assets/drive/items/seed-bag.png'], ['drive-watering-can', '/assets/drive/crop-2026/watering-can.png'], ['drive-fertilizer', '/assets/drive/crop-2026/fertilizer.png'], ['drive-crop-worm', '/assets/drive/crop-2026/worm.png'], ['drive-bug-net', '/assets/drive/crop-2026/bug-net.png'], ['drive-notice-board', '/assets/drive/ui/notice-board.png']].forEach(([key, path]) => { if (!this.textures.exists(key)) this.load.image(key, path) })
   }
   create() {
-    this.add.image(768, 512, 'drive-crop-farm').setDisplaySize(1536, 1024)
+    this.garden = this.add.image(768, 512, 'drive-crop-empty').setDisplaySize(1536, 1024)
     this.add.rectangle(768, 512, 1536, 1024, 0x153c55, .08)
     this.title('VƯỜN RAU CỦ', 'Crop Farm • Gieo hạt, chăm sóc và thu hoạch')
     this.backButton('FarmMap'); this.soundToggle()
@@ -25,6 +25,8 @@ export class CropFarmScene extends BaseScene {
     this.renderStage()
   }
   private renderStage() {
+    const beds: Record<CropStage, string> = { seed: 'drive-crop-empty', water: 'drive-crop-seeds', pest: 'drive-crop-sprouts', fertilize: 'drive-crop-sprouts', grow: 'drive-crop-sprouts', harvest: 'drive-crop-sprouts' }
+    this.garden.setTexture(beds[this.stage])
     const labels: Record<CropStage, string> = { seed: '1. Kéo túi hạt vào luống đất', water: '2. Tưới nước cho hạt', pest: '3. Bắt sâu để bảo vệ cây', fertilize: '4. Bón phân cho cây khỏe', grow: '5. Cà rốt đang lớn — chờ 10 giây', harvest: '6. Thu hoạch cà rốt vào kho!' }
     const instructions: Record<CropStage, [string, string]> = {
       seed: ['Move the seed bag to the carrot bed!', 'Kéo túi hạt giống vào luống cà rốt nhé!'],
@@ -40,7 +42,7 @@ export class CropFarmScene extends BaseScene {
     if (this.stage === 'seed') this.makeSeedBag()
     else if (this.stage === 'water') this.action = this.toolAction('drive-watering-can', 'TƯỚI NƯỚC', () => this.waterCrop())
     else if (this.stage === 'pest') this.catchPests()
-    else if (this.stage === 'fertilize') this.action = this.toolAction('drive-garden-fork', 'BÓN PHÂN', () => this.startGrowth())
+    else if (this.stage === 'fertilize') this.action = this.toolAction('drive-fertilizer', 'BÓN PHÂN', () => this.startGrowth())
     else if (this.stage === 'harvest') this.action = gameButton(this, 768, 890, 'THU HOẠCH', 0x62c978, () => this.harvest(), 300)
   }
   private makeSeedBag() {
@@ -92,16 +94,23 @@ export class CropFarmScene extends BaseScene {
     const positions = [[560, 560], [700, 610], [835, 565]]
     let caught = 0
     const counter = this.add.text(768, 860, 'SÂU ĐÃ BẮT: 0 / 3', { fontFamily: 'Nunito', fontSize: '25px', fontStyle: 'bold', color: '#fff8c7', stroke: '#397848', strokeThickness: 5 }).setOrigin(.5)
+    const net = this.add.image(1260, 835, 'drive-bug-net').setDisplaySize(150, 150).setInteractive({ draggable: true, useHandCursor: true }).setDepth(12)
+    this.input.setDraggable(net)
+    this.input.on('drag', (_pointer: Phaser.Input.Pointer, object: Phaser.GameObjects.GameObject, dragX: number, dragY: number) => { if (object === net) net.setPosition(dragX, dragY) })
+    const pests: Phaser.GameObjects.Image[] = []
     positions.forEach(([x, y]) => {
-      const pest = this.add.image(x, y, 'drive-crop-worm').setDisplaySize(92, 70).setInteractive({ useHandCursor: true })
+      const pest = this.add.image(x, y, 'drive-crop-worm').setDisplaySize(92, 70).setDepth(8)
+      pests.push(pest)
       this.tweens.add({ targets: pest, y: y - 10, duration: 520, yoyo: true, repeat: -1, ease: 'Sine.InOut' })
-      pest.on('pointerdown', () => {
-        if (!pest.active) return
-        pest.disableInteractive(); caught += 1; playSfx('success'); speakBilingual('Worm!', 'Con sâu!')
-        this.tweens.add({ targets: pest, scale: .2, alpha: 0, duration: 220, onComplete: () => pest.destroy() })
-        counter.setText(`SÂU ĐÃ BẮT: ${caught} / 3`)
-        if (caught === positions.length) this.time.delayedCall(350, () => this.advance('fertilize'))
-      })
+    })
+    net.on('dragend', () => {
+      const pest = pests.find((candidate) => candidate.active && Phaser.Math.Distance.Between(net.x, net.y, candidate.x, candidate.y) < 105)
+      if (!pest) { playSfx('error', .18); this.tweens.add({ targets: net, x: 1260, y: 835, duration: 220, ease: 'Back.Out' }); return }
+      pest.setActive(false); caught += 1; playSfx('success'); speakBilingual('Worm!', 'Con sâu!')
+      this.tweens.add({ targets: pest, scale: .2, alpha: 0, duration: 220, onComplete: () => pest.destroy() })
+      this.tweens.add({ targets: net, x: 1260, y: 835, duration: 220, ease: 'Back.Out' })
+      counter.setText(`SÂU ĐÃ BẮT: ${caught} / 3`)
+      if (caught === positions.length) { net.disableInteractive(); this.time.delayedCall(350, () => this.advance('fertilize')) }
     })
   }
   private advance(next: CropStage) { this.action?.destroy(); this.action = undefined; this.stage = next; this.renderStage() }
