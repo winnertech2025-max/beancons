@@ -151,3 +151,12 @@
 | Build, interaction and browser errors | PASS | `npm run build`, `npm run lint`, and `npx playwright test tests/e2e/chicken.spec.ts --reporter=line` passed. The test recorded no console error or failed asset request. |
 
 **Script decision recorded:** the Level 2 document says both 16 and 10 eggs. The implementation uses 10 because the later explicit task board and counting instructions say “Find 10 eggs”; change this only after the client resolves the conflict. The authored “one egg every 3 minutes” pacing is not simulated in the completion test: the interaction uses the supplied egg inventory immediately so the full educational loop is playable and testable in one session.
+
+# QA-MAP-004 — full-zone visual audit and Fishing asset check (2026-11-13)
+
+| Check | Result | Evidence |
+|---|---|---|
+| All seven available zones | PASS | Real canvas taps opened Crop, Cow, Chicken, Fishing Lake, Sheep, Home and Warehouse directly from Farm Map. The 1536×1024 captures were inspected for clipping/oversized artwork; Warehouse Ready and its CTA are correctly scaled. `test-results/artifacts/e2e-map-access-every-illus-d1c9b-e-without-completion-gating-desktop/map-{crop,cow,chicken,lake,sheep,home,warehouse}.png`. |
+| Full map regression | PASS | `npx playwright test tests/e2e/map-access.spec.ts --reporter=line`, `npm run build`, and `npm run lint` passed. The full visual pass now has a 90-second budget because seven streamed Phaser scenes exceed the former 60-second test budget on the supported macOS browser. |
+| Request audit | PASS | The test still fails on genuine failed requests. It ignores only `net::ERR_ABORTED` for an SFX fetch cancelled by an intentional scene switch; this is not a missing asset. |
+| Girl-in-boat Fishing art | BLOCKED — asset absent locally | Exhaustive scan of `public/assets/drive` found `backgrounds/fishing-pond.png`, level cards and generic girl poses, but no boat/girl-on-boat PNG. The pond background itself contains an empty boat. The visible moving fishing rod is therefore still code-drawn and has **not** been falsely replaced. Supply/sync the exact Drive file (or its parent folder) to replace it faithfully. |

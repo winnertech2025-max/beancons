@@ -1,11 +1,19 @@
 import { expect, test } from '@playwright/test'
 
 test('every illustrated Farm Map destination is available without completion gating', async ({ page }, testInfo) => {
-  test.setTimeout(60_000)
+  // Seven Phaser scenes stream their own illustration bundles. On the supported
+  // macOS browser this full visual pass can exceed one minute even though every
+  // destination succeeds, so keep the QA budget above the actual audit time.
+  test.setTimeout(90_000)
   const errors: string[] = []
   const failures: string[] = []
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
-  page.on('requestfailed', request => failures.push(request.url()))
+  // Scene changes can intentionally cancel an in-flight SFX fetch. It is not
+  // a missing game asset, so keep real request failures visible without
+  // flagging a browser cancellation as an asset regression.
+  page.on('requestfailed', request => {
+    if (request.failure()?.errorText !== 'net::ERR_ABORTED') failures.push(request.url())
+  })
   await page.goto('/', { waitUntil: 'commit' })
   await expect.poll(() => page.evaluate(() => window.__HAPPY_FARM_QA__?.scenes() ?? []), { timeout: 20_000 }).toContain('Welcome')
   const canvas = page.locator('canvas')

@@ -17,7 +17,7 @@
 | Gà Level 1: làm quen → cho ăn/uống → thu trứng → tô màu | Có chạm Hen/Chick → chọn Chick đúng/sai → kéo ngô vào máng → chạm máng nước → thu 10 trứng, đếm Anh–Việt → chọn màu/tô trứng → thưởng. | **Pass.** Dùng các asset Gà cùng ngô/cỏ/rơm/hoa/trứng đã có trong asset set đã sync. |
 | Gà Level 2: tìm trứng (kịch bản mâu thuẫn 16/10) | Có màn giới thiệu và 5 vị trí khám phá (đống rơm, bụi cây, chuồng, cây lớn, giỏ); mỗi vị trí mở hai trứng, tổng 10, rồi màn hoàn thành. | **Implemented with 10.** Đây là suy luận theo bảng nhiệm vụ lặp lại “Find 10 eggs”; đoạn “16 quả” mâu thuẫn vẫn cần khách xác nhận nếu muốn đổi mục tiêu. |
 | Cừu: Jump N lần | Có scene Cừu dùng nền minh họa được cung cấp; yêu cầu “Jump three times”, ba lần bấm và phản hồi Great job/replay/home hoạt động. | **Partial.** Kịch bản chưa xác định các lượt sau nên không tự tạo thêm luật. |
-| Kho giao hàng: orders, 5 phút, kéo hàng, reward | Chưa có scene. | **Chưa triển khai; chờ asset kho khách nói đang chuẩn bị.** |
+| Kho giao hàng: orders, 5 phút, kéo hàng, reward | Có Ready → chào NPC nữ → chọn order → chuẩn bị 9 vật phẩm → đồng hồ 05:00 → kéo 5 hàng lên xe → kết quả/reward/Home. | **Partial.** Luồng Kho đã có và dùng art Drive; hiện chỉ hoàn tất order Bò theo card asset có sẵn. Các card còn lại phải được nối vào đúng tồn kho/định lượng trong kịch bản. |
 | Farm Shop & Decor | Chưa có scene / economy loop. | **Chưa triển khai; cần asset catalog và giá/đơn vị nội dung.** |
 | Map hover | Có hit area lớn để bấm trực tiếp từng khu. | **Không có highlight tạm.** Ellipse sai hình đã bị gỡ. Cần PNG silhouette từng khu từ Drive để tạo outline đúng hình. |
 
