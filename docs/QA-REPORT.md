@@ -227,6 +227,8 @@
 
 **Follow-up visual correction:** the initial packet-placement tween used absolute Phaser scale after `setDisplaySize`, which enlarged the first planted packet. It now tweens to an explicit compact `58×63` display size instead. The repaired one-packet evidence is `crop-one-seed-planted.png`; lint, production build, and the full Crop pointer regression were rerun and passed.
 
+**Growth-bar correction:** the grow timer formerly referenced the removed `drive-seed-bag` key, yielding Phaser's black/green missing-texture placeholder. It now references the loaded carrot packet and places it within the bar. The copy now reflects the five-crop loop (“Các cây đang lớn”), and harvest persists radish, tomato, carrot, cabbage and strawberry. Browser proof: `crop-growth-progress.png`; the focused Crop test asserts all five inventory items after harvest and passed again.
+
 **Outstanding script scope:** the current supplied growth-stage art depicts generic sprouts and the existing warehouse inventory only receives carrot. The five packet-to-bed interaction is now real; individual crop-specific grow timers and crop-specific harvest inventory need distinct mature-crop assets/data before they can be claimed as complete.
 
 # QA-COW-005 — delivery input readiness (2026-11-13)

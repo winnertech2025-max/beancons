@@ -52,14 +52,14 @@ export class CropFarmScene extends BaseScene {
     this.clearStageObjects()
     const beds: Record<CropStage, string> = { seed: 'drive-crop-empty', water: 'drive-crop-seeds', pest: 'drive-crop-sprouts', fertilize: 'drive-crop-sprouts', grow: 'drive-crop-sprouts', harvest: 'drive-crop-sprouts' }
     this.garden.setTexture(beds[this.stage])
-    const labels: Record<CropStage, string> = { seed: '1. Kéo túi hạt vào luống đất', water: '2. Tưới nước cho hạt', pest: '3. Bắt sâu để bảo vệ cây', fertilize: '4. Bón phân cho cây khỏe', grow: '5. Cà rốt đang lớn — chờ 10 giây', harvest: '6. Thu hoạch cà rốt vào kho!' }
+    const labels: Record<CropStage, string> = { seed: '1. Kéo túi hạt vào luống đất', water: '2. Tưới nước cho hạt', pest: '3. Bắt sâu để bảo vệ cây', fertilize: '4. Bón phân cho cây khỏe', grow: '5. Cây đang lớn — chờ 10 giây', harvest: '6. Thu hoạch nông sản vào kho!' }
     const instructions: Record<CropStage, [string, string]> = {
       seed: ['Plant every seed bag in its matching garden bed!', 'Kéo từng túi hạt vào đúng luống đất tương ứng nhé!'],
       water: ['Tap the watering can to water the seeds!', 'Chạm bình tưới để tưới hạt giống nào!'],
       pest: ['Find and catch the pests!', 'Hãy bắt sâu để bảo vệ cây nhé!'],
       fertilize: ['Use the garden fork to fertilize the soil!', 'Dùng dụng cụ làm đất cho cây khỏe hơn!'],
-      grow: ['The carrots are growing!', 'Cà rốt đang lớn lên rồi!'],
-      harvest: ['Tap harvest and take the carrots to the farm!', 'Chạm thu hoạch để mang cà rốt về nông trại!'],
+      grow: ['The crops are growing!', 'Các cây đang lớn lên rồi!'],
+      harvest: ['Tap harvest and take the crops to the farm!', 'Chạm thu hoạch để mang nông sản về nông trại!'],
     }
     this.stageText.setText(labels[this.stage])
     this.instruction.setText(instructions[this.stage][0])
@@ -180,14 +180,16 @@ export class CropFarmScene extends BaseScene {
     frame.fillStyle(0x643b1e, .94).fillRoundedRect(-252, -31, 504, 62, 30)
     frame.fillStyle(0xfff6d6, 1).fillRoundedRect(-244, -23, 488, 46, 22)
     const fill = this.add.graphics()
-    const icon = this.add.image(-278, 0, 'drive-seed-bag').setDisplaySize(62, 69)
-    const label = this.add.text(0, 0, 'Cà rốt đang lớn · 10 giây', { fontFamily: 'Nunito', fontSize: '21px', fontStyle: 'bold', color: '#5b391e', stroke: '#fff9e6', strokeThickness: 3 }).setOrigin(.5)
+    // This packet is preloaded in this scene. Keep it inside the bar; the old
+    // stale key rendered Phaser's missing-texture placeholder outside the frame.
+    const icon = this.add.image(-214, 0, 'drive-carrot-seeds').setDisplaySize(42, 46)
+    const label = this.add.text(22, 0, 'Các cây đang lớn · 10 giây', { fontFamily: 'Nunito', fontSize: '21px', fontStyle: 'bold', color: '#5b391e', stroke: '#fff9e6', strokeThickness: 3 }).setOrigin(.5)
     progress.add([frame, fill, icon, label])
     let seconds = 10
     const paint = () => {
       const amount = (10 - seconds) / 10
       fill.clear().fillStyle(0xffb83d, 1).fillRoundedRect(-236, -15, Math.max(0, 472 * amount), 30, 15)
-      label.setText(seconds > 0 ? `Cà rốt đang lớn · ${seconds} giây` : 'Cà rốt đã chín!')
+      label.setText(seconds > 0 ? `Các cây đang lớn · ${seconds} giây` : 'Các cây đã chín!')
     }
     paint()
     this.time.addEvent({ delay: 1000, repeat: 9, callback: () => {
@@ -195,7 +197,7 @@ export class CropFarmScene extends BaseScene {
       if (seconds > 0) playSfx('tick', .1)
       if (seconds === 0) {
         playSfx('success'); progress.destroy(); this.celebrate(760, 610, 7)
-        const ready = this.add.text(760, 610, 'CÀ RỐT ĐÃ CHÍN!', { fontFamily: 'Nunito', fontSize: '37px', fontStyle: 'bold', color: '#fff8c7', stroke: '#e66f29', strokeThickness: 7 }).setOrigin(.5)
+        const ready = this.add.text(760, 610, 'CÂY ĐÃ CHÍN!', { fontFamily: 'Nunito', fontSize: '37px', fontStyle: 'bold', color: '#fff8c7', stroke: '#e66f29', strokeThickness: 7 }).setOrigin(.5)
         this.tweens.add({ targets: ready, y: 574, alpha: 0, duration: 1400, delay: 800, onComplete: () => ready.destroy() })
         this.stage = 'harvest'; this.renderStage()
       }
@@ -212,12 +214,12 @@ export class CropFarmScene extends BaseScene {
     // The result board owns the message hierarchy. Leaving the last task copy
     // visible underneath made the success screen read like two conflicting states.
     this.instruction.setVisible(false); this.translation.setVisible(false); this.stageText.setVisible(false)
-    const store = useFarmStore.getState(); store.addItem('carrot', 1); store.reward('crop-farm:first-harvest', 1); store.complete('crop-farm'); store.unlock('cow-farm')
-    playSfx('success'); this.celebrate(768, 480, 10); speakBilingual('Great job! You harvested a carrot.', 'Tuyệt vời! Bé đã thu hoạch cà rốt.')
+    const store = useFarmStore.getState(); ['radish', 'tomato', 'carrot', 'cabbage', 'strawberry'].forEach((item) => store.addItem(item, 1)); store.reward('crop-farm:first-harvest', 1); store.complete('crop-farm'); store.unlock('cow-farm')
+    playSfx('success'); this.celebrate(768, 480, 10); speakBilingual('Great job! You harvested your crops.', 'Tuyệt vời! Bé đã thu hoạch nông sản.')
     this.add.image(768, 510, 'drive-notice-board').setDisplaySize(790, 525).setDepth(20)
     this.add.text(768, 412, 'TUYỆT VỜI!', { fontFamily: 'Nunito', fontSize: '46px', fontStyle: '900', color: '#99521f', stroke: '#fff9e9', strokeThickness: 7 }).setOrigin(.5).setDepth(21)
-    this.add.text(768, 490, 'Bé đã thu hoạch cà rốt\nvà nhận 1 ngôi sao!', { fontFamily: 'Nunito', fontSize: '30px', fontStyle: 'bold', color: '#40566a', align: 'center', lineSpacing: 10 }).setOrigin(.5).setDepth(21)
-    this.add.text(768, 575, 'CARROT +1    ★ +1', { fontFamily: 'Nunito', fontSize: '26px', fontStyle: '900', color: '#62a65a', stroke: '#f9ffe9', strokeThickness: 4 }).setOrigin(.5).setDepth(21)
+    this.add.text(768, 490, 'Bé đã thu hoạch nông sản\nvà nhận 1 ngôi sao!', { fontFamily: 'Nunito', fontSize: '30px', fontStyle: 'bold', color: '#40566a', align: 'center', lineSpacing: 10 }).setOrigin(.5).setDepth(21)
+    this.add.text(768, 575, 'HARVEST +5    ★ +1', { fontFamily: 'Nunito', fontSize: '26px', fontStyle: '900', color: '#62a65a', stroke: '#f9ffe9', strokeThickness: 4 }).setOrigin(.5).setDepth(21)
     gameButton(this, 768, 690, 'VỀ NÔNG TRẠI', 0xff9c4c, () => this.scene.start('FarmMap'), 310).setDepth(22)
   }
 }

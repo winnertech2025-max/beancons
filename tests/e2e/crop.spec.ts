@@ -2,7 +2,9 @@ import { expect, test } from '@playwright/test'
 
 test('Crop Farm requires every seed bag to be dropped into its own matching bed before care begins', async ({ page }, testInfo) => {
   // Includes the real ten-second growing clock after five individual drag/drop actions.
-  test.setTimeout(75_000)
+  // Cold asset streaming plus the real ten-second growth timer can exceed the
+  // project default on the supported macOS browser; gameplay itself is timed.
+  test.setTimeout(120_000)
   const errors: string[] = []; const failures: string[] = []
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
   page.on('requestfailed', request => { if (request.failure()?.errorText !== 'net::ERR_ABORTED') failures.push(request.url()) })
@@ -39,10 +41,16 @@ test('Crop Farm requires every seed bag to be dropped into its own matching bed 
   // The supplied bug net must be dragged over each real pest; a direct pest
   // tap would bypass the authored tool interaction.
   for (const pest of pests) { await drag([1260, 835], [pest.x!, pest.y!]); await page.waitForTimeout(260) }
-  await page.waitForTimeout(500); await point(768, 850); await page.waitForTimeout(10_700)
+  await page.waitForTimeout(500); await point(768, 850); await page.waitForTimeout(1_300)
+  await page.screenshot({ path: testInfo.outputPath('crop-growth-progress.png') })
+  await page.waitForTimeout(9_500)
   await page.screenshot({ path: testInfo.outputPath('crop-harvest-ready.png') })
   await point(768, 890)
   await expect.poll(() => page.evaluate(() => window.__HAPPY_FARM_QA__?.state().completedActivities.includes('crop-farm'))).toBe(true)
+  expect(await page.evaluate(() => {
+    const inventory = window.__HAPPY_FARM_QA__?.state().inventory ?? {}
+    return ['radish', 'tomato', 'carrot', 'cabbage', 'strawberry'].every((item) => inventory[item] >= 1)
+  })).toBe(true)
   await page.screenshot({ path: testInfo.outputPath('crop-complete.png') })
   expect(errors).toEqual([]); expect(failures).toEqual([])
 })
