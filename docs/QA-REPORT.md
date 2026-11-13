@@ -229,6 +229,17 @@
 
 **Growth-bar correction:** the grow timer formerly referenced the removed `drive-seed-bag` key, yielding Phaser's black/green missing-texture placeholder. It now references the loaded carrot packet and places it within the bar. The copy now reflects the five-crop loop (“Các cây đang lớn”), and harvest persists radish, tomato, carrot, cabbage and strawberry. Browser proof: `crop-growth-progress.png`; the focused Crop test asserts all five inventory items after harvest and passed again.
 
+# QA-MAP-005 — supplied bilingual map signs and hover response (2026-11-13)
+
+| Check | Result | Evidence / limitation |
+|---|---|---|
+| Drive sign sync | PASS | Downloaded the supplied folder and wired its six unaltered bilingual sign PNGs: Storage/Kho, Chicken Barn/Chuồng gà, Garden/Vườn, Cow Barn/Chuồng bò, Sheep Barn/Chuồng cừu and House/Nhà. |
+| Layout and scale | PASS | Signs preserve their 2:1 source ratio at `210×105`; they replace the former generic text labels without obscuring the top HUD. |
+| Hover feedback | PASS | A map-zone hover applies a soft yellow outline glow plus a 5.5% display-size lift from the sign's existing dimensions, then restores the exact baseline dimensions on pointer-out. This avoids resetting a high-resolution PNG to a literal Phaser scale. |
+| Browser regression | PASS | `npm run lint`, `npm run build`, and `npx playwright test tests/e2e/map-access.spec.ts --workers=1 --reporter=line` passed. The test captures the sign layout, hovers Garden, and still opens all map destinations. Evidence: `test-results/artifacts/e2e-map-access-every-illus-d1c9b-e-without-completion-gating-desktop/map-signs.png` and `map-crop-sign-hover.png`. |
+
+**Missing supplied asset:** the folder contained no Hồ câu cá / Fishing Lake sign. That destination deliberately retains its readable text label until the matching supplied PNG is provided; no replacement art was invented.
+
 **Outstanding script scope:** the current supplied growth-stage art depicts generic sprouts and the existing warehouse inventory only receives carrot. The five packet-to-bed interaction is now real; individual crop-specific grow timers and crop-specific harvest inventory need distinct mature-crop assets/data before they can be claimed as complete.
 
 # QA-COW-005 — delivery input readiness (2026-11-13)

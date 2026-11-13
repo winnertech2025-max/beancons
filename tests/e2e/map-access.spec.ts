@@ -22,12 +22,20 @@ test('every illustrated Farm Map destination is available without completion gat
     const box = await canvas.boundingBox(); if (!box) throw new Error('Canvas missing')
     await page.mouse.click(box.x + x / 1536 * box.width, box.y + y / 1024 * box.height)
   }
+  const move = async (x: number, y: number) => {
+    const box = await canvas.boundingBox(); if (!box) throw new Error('Canvas missing')
+    await page.mouse.move(box.x + x / 1536 * box.width, box.y + y / 1024 * box.height)
+  }
   const zones: Array<[string, number, number, string]> = [
     ['crop', 1190, 714, 'CropFarm'], ['cow', 1124, 333, 'CowFarm'], ['chicken', 507, 515, 'ChickenFarm'],
     ['lake', 757, 465, 'FishingLake'], ['sheep', 1252, 558, 'SheepFarm'], ['home', 360, 310, 'MemoryHome'], ['warehouse', 770, 265, 'Warehouse'],
   ]
   await page.evaluate(() => window.__HAPPY_FARM_QA__?.start('FarmMap'))
   await page.waitForTimeout(250)
+  await expect.poll(() => page.evaluate(() => window.__HAPPY_FARM_QA__?.objects('FarmMap').filter(object => object.texture?.startsWith('map-sign-')).length ?? 0)).toBe(6)
+  await page.screenshot({ path: testInfo.outputPath('map-signs.png') })
+  await move(1190, 714); await page.waitForTimeout(220)
+  await page.screenshot({ path: testInfo.outputPath('map-crop-sign-hover.png') })
   for (const [label, x, y, scene] of zones) {
     await point(x, y)
     await expect.poll(() => page.evaluate(() => (window.__HAPPY_FARM_QA__?.scenes() ?? []).at(-1)), { timeout: 6_000 }).toBe(scene)
