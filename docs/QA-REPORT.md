@@ -216,6 +216,17 @@
 | Seed through harvest | PASS | Browser pointer input dragged the supplied seed bag, tapped the watering control, waited for the actual three pest targets, tapped every real worm position, fertilised, allowed the growth timer to finish, then tapped harvest. No scripted state was skipped. `npx playwright test tests/e2e/crop.spec.ts --workers=1 --reporter=line` passed. |
 | Pest interaction | PASS | The test waits for the live worm sprites rather than guessing fixed timing, then requires all three to be removed before fertiliser becomes available. This protects the authored pest beat against a false UI-only completion. |
 
+# QA-CROP-004 — individual seed packets and bed validation (2026-11-13)
+
+| Check | Result | Evidence / limitation |
+|---|---|---|
+| Five supplied seed packets | PASS | Crop Farm now renders the supplied Radish, Tomato, Carrot, Cabbage and Strawberry packets together. The supplied B4 radish packet was exported as `radish-seeds-transparent.png` so its black preview background cannot appear in-game. |
+| Per-bed drag/drop | PASS | A child must drag each packet into its own labelled soil bed. Each drop target uses the matching bed's measured elliptical soil area—not one broad invisible circle—so path/adjacent-bed drops spring back to the packet shelf. Progress remains at `ĐÃ GIEO: n / 5` until all five correct drops complete. |
+| Pest art | PASS | The garden now alternates the supplied caterpillar and ladybug art; both must be caught with the supplied net before fertilising can start. |
+| Browser regression | PASS | `npm run lint`, `npm run build`, and `npx playwright test tests/e2e/crop.spec.ts --workers=1 --reporter=line` passed. The pointer test makes one wrong drop, verifies snap-back, plants all five individual packets, and then completes water → pests → fertilise → 10-second growth → harvest with no console errors or failed asset requests. Visual evidence: `test-results/artifacts/e2e-crop-Crop-Farm-require-24442-hing-bed-before-care-begins-desktop/crop-seed-rack.png`, `crop-all-seeds-planted.png`, `crop-harvest-ready.png`, `crop-complete.png`. |
+
+**Outstanding script scope:** the current supplied growth-stage art depicts generic sprouts and the existing warehouse inventory only receives carrot. The five packet-to-bed interaction is now real; individual crop-specific grow timers and crop-specific harvest inventory need distinct mature-crop assets/data before they can be claimed as complete.
+
 # QA-COW-005 — delivery input readiness (2026-11-13)
 
 | Check | Result | Evidence |
