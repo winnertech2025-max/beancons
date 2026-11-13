@@ -225,6 +225,8 @@
 | Pest art | PASS | The garden now alternates the supplied caterpillar and ladybug art; both must be caught with the supplied net before fertilising can start. |
 | Browser regression | PASS | `npm run lint`, `npm run build`, and `npx playwright test tests/e2e/crop.spec.ts --workers=1 --reporter=line` passed. The pointer test makes one wrong drop, verifies snap-back, plants all five individual packets, and then completes water → pests → fertilise → 10-second growth → harvest with no console errors or failed asset requests. Visual evidence: `test-results/artifacts/e2e-crop-Crop-Farm-require-24442-hing-bed-before-care-begins-desktop/crop-seed-rack.png`, `crop-all-seeds-planted.png`, `crop-harvest-ready.png`, `crop-complete.png`. |
 
+**Follow-up visual correction:** the initial packet-placement tween used absolute Phaser scale after `setDisplaySize`, which enlarged the first planted packet. It now tweens to an explicit compact `58×63` display size instead. The repaired one-packet evidence is `crop-one-seed-planted.png`; lint, production build, and the full Crop pointer regression were rerun and passed.
+
 **Outstanding script scope:** the current supplied growth-stage art depicts generic sprouts and the existing warehouse inventory only receives carrot. The five packet-to-bed interaction is now real; individual crop-specific grow timers and crop-specific harvest inventory need distinct mature-crop assets/data before they can be claimed as complete.
 
 # QA-COW-005 — delivery input readiness (2026-11-13)

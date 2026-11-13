@@ -27,7 +27,9 @@ test('Crop Farm requires every seed bag to be dropped into its own matching bed 
   expect(wrongBag?.x).toBeCloseTo(crops[0].shelf[0], -1)
   expect(wrongBag?.y).toBeCloseTo(crops[0].shelf[1], -1)
   // Each supplied seed packet must go to its own authored soil bed.
-  for (const crop of crops) { await drag(crop.shelf, crop.bed); await page.waitForTimeout(180) }
+  await drag(crops[0].shelf, crops[0].bed); await page.waitForTimeout(260)
+  await page.screenshot({ path: testInfo.outputPath('crop-one-seed-planted.png') })
+  for (const crop of crops.slice(1)) { await drag(crop.shelf, crop.bed); await page.waitForTimeout(180) }
   await expect.poll(() => page.evaluate(() => window.__HAPPY_FARM_QA__?.objects('CropFarm').some(object => object.labels?.includes('TƯỚI NƯỚC'))), { timeout: 3_000 }).toBe(true)
   await page.screenshot({ path: testInfo.outputPath('crop-all-seeds-planted.png') })
   await point(768, 850)

@@ -107,7 +107,11 @@ export class CropFarmScene extends BaseScene {
         return
       }
       object.disableInteractive().setDepth(6)
-      this.tweens.add({ targets: object, x: targetX, y: targetY, scale: .62, duration: 190, ease: 'Back.Out' })
+      // `setDisplaySize` internally uses a fractional scale. Tweening to a
+      // literal `scale: .62` overrides that fraction and makes the high-res
+      // packet enormous. Keep the authored packet compact by tweening its
+      // final display dimensions instead.
+      this.tweens.add({ targets: object, x: targetX, y: targetY, displayWidth: 58, displayHeight: 63, duration: 190, ease: 'Back.Out' })
       label.setText(`${seed.english}\nĐÃ GIEO!`).setColor('#fff8c7')
       planted += 1; counter.setText(`ĐÃ GIEO: ${planted} / ${SEED_SPECS.length}`)
       playSfx('drop'); this.celebrate(targetX, targetY, 3)
