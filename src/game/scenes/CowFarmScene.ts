@@ -31,7 +31,7 @@ export class CowFarmScene extends BaseScene {
   /** All narrated phrases keep the approved order: English first, Vietnamese second. */
   private say(english: string, vietnamese: string) { speakBilingual(english, vietnamese) }
   private startFeed() {
-    this.instruction.setText('“I\'m hungry!” · “Tôi đói quá!”'); const cue = this.add.text(510, 590, 'HÃY THẢ THỨC ĂN VÀO BÒ', { fontFamily: 'Nunito', fontSize: '18px', fontStyle: 'bold', color: '#fff8c7', stroke: '#42753e', strokeThickness: 5 }).setOrigin(.5)
+    this.instruction.setText('“I\'m hungry!” · “Tôi đói quá!”'); const cue = this.add.text(585, 405, 'HÃY THẢ THỨC ĂN VÀO BÒ', { fontFamily: 'Nunito', fontSize: '18px', fontStyle: 'bold', color: '#fff8c7', stroke: '#2e5967', strokeThickness: 5 }).setOrigin(.5).setVisible(false)
     this.tweens.add({ targets: cue, alpha: .55, duration: 800, yoyo: true, repeat: -1 }); this.time.delayedCall(450, () => this.say("I'm hungry!", 'Tôi đói quá!')); this.time.delayedCall(1500, () => { if (this.stage === 'feed') { this.instruction.setText('Find the grass! · Hãy tìm cỏ!'); this.say('Find the grass!', 'Hãy tìm cỏ!') } })
     this.addFood('drive-cow-grass', 'GRASS', 'CỎ', 1090, 790, true, 140, 72, cue); this.addFood('drive-cow-hay', 'HAY', 'CỎ KHÔ', 1270, 790, false, 130, 88, cue); this.addFood('drive-cow-flower', 'FLOWER', 'HOA', 1435, 790, false, 116, 108, cue)
   }

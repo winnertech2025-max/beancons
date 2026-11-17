@@ -1,7 +1,10 @@
 import { expect, test } from '@playwright/test'
 
 test('Cow Farm completes feed, bucket, milk and ten-bottle delivery with real pointer input', async ({ page }, testInfo) => {
-  test.setTimeout(75_000)
+  // The real flow deliberately includes narrated/celebration beats and ten
+  // individual bottle drags. Keep the test bounded without cutting it off
+  // midway through a valid child-paced interaction.
+  test.setTimeout(120_000)
   const errors: string[] = []; const failures: string[] = []
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
   page.on('requestfailed', request => { if (request.failure()?.errorText !== 'net::ERR_ABORTED') failures.push(request.url()) })
@@ -9,6 +12,9 @@ test('Cow Farm completes feed, bucket, milk and ten-bottle delivery with real po
   await expect.poll(() => page.evaluate(() => window.__HAPPY_FARM_QA__?.scenes() ?? []), { timeout: 20_000 }).toContain('Welcome')
   await page.evaluate(() => window.__HAPPY_FARM_QA__?.start('CowFarm'))
   const canvas = page.locator('canvas'); await expect(canvas).toBeVisible()
+  // Keep this key composition evidence after Playwright clears successful test
+  // output, so visual QA can be independently reviewed.
+  await page.screenshot({ path: 'output/playwright/cow-feed-initial-final.png' })
   const point = async (x: number, y: number) => { const b = await canvas.boundingBox(); if (!b) throw new Error('Canvas missing'); await page.mouse.click(b.x + x / 1536 * b.width, b.y + y / 1024 * b.height) }
   const drag = async (from: [number, number], to: [number, number]) => { const b = await canvas.boundingBox(); if (!b) throw new Error('Canvas missing'); await page.mouse.move(b.x + from[0] / 1536 * b.width, b.y + from[1] / 1024 * b.height); await page.mouse.down(); await page.mouse.move(b.x + to[0] / 1536 * b.width, b.y + to[1] / 1024 * b.height, { steps: 8 }); await page.mouse.up() }
   await drag([1090,790], [565,545]); await page.waitForTimeout(1_600)

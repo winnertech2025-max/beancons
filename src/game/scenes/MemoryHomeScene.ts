@@ -51,13 +51,15 @@ export class MemoryHomeScene extends BaseScene {
   private showThemes() {
     this.clear(); this.background(); this.title('NGÔI NHÀ · LẬT THẺ', 'Memory cards · Chọn một bộ thẻ để bắt đầu'); this.backButton('FarmMap'); this.soundToggle()
     this.add.text(768, 174, 'Lật hai thẻ giống nhau để nghe từ tiếng Anh!', { fontFamily: 'Nunito', fontSize: '25px', fontStyle: 'bold', color: '#fff9d4', stroke: '#315d71', strokeThickness: 6 }).setOrigin(.5)
-    themes.forEach((theme, index) => this.themeButton(theme, 485 + (index % 3) * 285, 370 + Math.floor(index / 3) * 280))
+    const positions: Array<[number, number]> = [[485, 370], [768, 370], [1051, 370], [610, 650], [926, 650]]
+    themes.forEach((theme, index) => this.themeButton(theme, ...positions[index]))
   }
 
   private themeButton(theme: Theme, x: number, y: number) {
-    const art = this.add.image(0, 0, 'drive-cow-banner').setDisplaySize(285, 142).setAlpha(theme.available ? 1 : .86)
-    const title = this.add.text(-3, -15, theme.title, { fontFamily: 'Nunito', fontSize: theme.title.length > 15 ? '19px' : '24px', fontStyle: 'bold', color: theme.available ? '#704019' : '#6d7376', align: 'center', wordWrap: { width: 190 } }).setOrigin(.5)
-    const subtitle = this.add.text(-3, 30, theme.available ? theme.subtitle : `🔒 ${theme.subtitle}`, { fontFamily: 'Nunito', fontSize: '16px', fontStyle: 'bold', color: theme.available ? '#315d71' : '#59666d', align: 'center', wordWrap: { width: 175 } }).setOrigin(.5)
+    const art = this.add.image(0, 0, 'drive-cow-banner').setDisplaySize(285, 142)
+    if (!theme.available) art.setTint(0xaeb6b9).setAlpha(.9)
+    const title = this.add.text(-3, -20, theme.title, { fontFamily: 'Nunito', fontSize: theme.title.length > 15 ? '17px' : '23px', fontStyle: 'bold', color: theme.available ? '#704019' : '#4d5c62', align: 'center', wordWrap: { width: 205 } }).setOrigin(.5)
+    const subtitle = this.add.text(-3, 35, theme.available ? theme.subtitle : `🔒 ${theme.subtitle}`, { fontFamily: 'Nunito', fontSize: theme.available ? '16px' : '14px', fontStyle: 'bold', color: theme.available ? '#315d71' : '#4d5c62', align: 'center', wordWrap: { width: 195 } }).setOrigin(.5)
     const button = this.add.container(x, y, [art, title, subtitle]).setSize(285, 142)
     if (!theme.available) return
     button.setInteractive({ useHandCursor: true }); button.on('pointerover', () => button.setScale(1.04)); button.on('pointerout', () => button.setScale(1)); button.on('pointerdown', () => { playSfx('select'); this.theme = theme; this.level = 1; this.drawRound() })

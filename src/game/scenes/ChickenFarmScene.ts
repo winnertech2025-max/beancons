@@ -26,14 +26,15 @@ export class ChickenFarmScene extends BaseScene {
   // an old beat were still alive and could redraw Level 1 over Level 2.
   private clear() { this.time.removeAllEvents(); this.tweens.killAll(); this.children.removeAll(true); this.locked = false }
   private bg(sub: string) { this.add.image(768, 512, 'drive-chicken-farm').setDisplaySize(1536, 1024); this.title(`TRANG TRẠI GÀ · LEVEL ${this.level}`, sub); this.backButton('FarmMap'); this.soundToggle() }
-  private heading(en: string, vi: string) { this.add.text(768, 164, en, { fontFamily: 'Nunito', fontSize: '34px', fontStyle: 'bold', color: '#fff9d4', stroke: '#337262', strokeThickness: 7 }).setOrigin(.5); this.add.text(768, 208, vi, { fontFamily: 'Nunito', fontSize: '22px', fontStyle: 'bold', color: '#fff', stroke: '#337262', strokeThickness: 5 }).setOrigin(.5) }
+  private heading(en: string, vi: string) { this.add.text(768, 158, en, { fontFamily: 'Nunito', fontSize: '29px', fontStyle: 'bold', color: '#fff9d4', stroke: '#337262', strokeThickness: 6 }).setOrigin(.5); this.add.text(768, 198, vi, { fontFamily: 'Nunito', fontSize: '20px', fontStyle: 'bold', color: '#fff', stroke: '#337262', strokeThickness: 4 }).setOrigin(.5) }
 
   private showMeet() {
     this.clear(); this.met.clear(); this.bg('Bước 1/4 · Làm quen với gia đình gà'); this.heading('Meet the chicken family!', 'Chạm Gà mẹ và Gà con để nghe từ mới!')
     this.friend('hen', 475, 550, 'HEN', 'Gà mẹ'); this.friend('chick', 1055, 552, 'CHICK', 'Gà con')
   }
   private friend(id: Friend, x: number, y: number, en: string, vi: string) {
-    const art = this.add.image(0, -22, `drive-chicken-${id}`).setDisplaySize(420, 278); const label = this.add.text(0, 165, `${en} · ${vi}`, { fontFamily: 'Nunito', fontSize: '28px', fontStyle: 'bold', color: '#fff9d4', stroke: '#704019', strokeThickness: 6 }).setOrigin(.5); const target = this.add.container(x, y, [art, label]).setSize(460, 380).setInteractive({ useHandCursor: true })
+    const size = id === 'chick' ? [285, 190] : [350, 232]
+    const art = this.add.image(0, -16, `drive-chicken-${id}`).setDisplaySize(size[0], size[1]); const label = this.add.text(0, 142, `${en} · ${vi}`, { fontFamily: 'Nunito', fontSize: '25px', fontStyle: 'bold', color: '#fff9d4', stroke: '#704019', strokeThickness: 6 }).setOrigin(.5); const target = this.add.container(x, y, [art, label]).setSize(390, 330).setInteractive({ useHandCursor: true })
     target.on('pointerdown', () => { if (this.locked) return; this.met.add(id); playSfx('tap'); speakBilingual(en, vi); this.tweens.add({ targets: target, y: y - 22, scaleY: .94, duration: 130, yoyo: true }); if (this.met.size === 2) this.time.delayedCall(550, () => this.askChick()) })
   }
   private askChick() {

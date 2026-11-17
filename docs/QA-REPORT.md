@@ -281,3 +281,38 @@
 | Sheep turn progression | FIXED | Three JUMP presses complete a turn and expose `LƯỢT TIẾP THEO`; a real pointer tap enters Round 2 rather than ending the whole Sheep Farm. The script does not specify an ending round count, so rounds continue and Farm Map remains accessible through Back. |
 | NPC source refresh | PASS | Downloaded the supplied NPC folder (24 assets). The new opening girl and boy transparent poses are wired into the opening asset manifest; the remaining supplied reaction poses are retained under `public/assets/drive/npc-2026/` for scene-specific use, without replacing art by generated substitutes. |
 | Browser regression | PASS | `npm run build`, `npm run lint`, and focused real-pointer Cow/Crop/Fishing/Map test runs passed. The Crop regression drags the physical net over live worm positions; Map regression performs three Sheep jumps then enters Round 2. |
+
+# QA-REVIEW-008 — game-wide player-flow re-audit (2026-11-17)
+
+| Check | Result | Evidence / limitation |
+|---|---|---|
+| Script review | COMPLETE | Re-read `Kịch bản 2.docx` from beginning to end and compared it against all current scripted scenes. Full findings: `docs/GAME-WIDE-QUALITY-AUDIT.md`, Re-audit section. |
+| Focused Fishing real-input path | PASS | `npx playwright test tests/e2e/fishing.spec.ts --reporter=line` performed real canvas input: moving supplied boat-girl → cast → reel → correct Fish card → Level 2. No console error or genuine failed asset request. |
+| Chicken visual inspection | FAIL / recorded | Screenshot inspection of `test-results/artifacts/e2e-chicken-Chicken-Farm-c-41c69-ats-with-real-pointer-input-desktop/chicken-meet.png` found disproportionate chick scaling and crowded repeated hierarchy. This is a UX/UI defect, not a runtime failure. |
+| Broad suite | BLOCKED | A manually started combined 10-test sequential run stalled while starting its Chicken run and was stopped; it is not counted as a pass. The test runner lifecycle needs repair or hard timeout evidence before a whole-project regression can be claimed. |
+| Sheep replacement | NOT CERTIFIED | Current uncommitted Sheep implementation has no browser pointer test and uses incorrect fallbacks/text substitutes despite local authored Sheep stage folders. It is explicitly not approved as completed. |
+
+# QA-SHEEP-009 — authored Sheep flow and Chicken scale correction (2026-11-17)
+
+| Check | Result | Evidence / limitation |
+|---|---|---|
+| Sheep full pointer path | PASS | `npm run build` and `npx playwright test tests/e2e/sheep.spec.ts --reporter=line` passed. Real canvas input completed Level 1 feed for three sheep, Level 2 three cut actions, collected nine wool bundles, answered the three-sheep count and reached the final reward. No console error or genuine failed request was recorded. Evidence: `test-results/artifacts/e2e-sheep-Sheep-Farm-uses--4bb69-r-wool-collection-and-count-desktop/{sheep-intro,sheep-wool,sheep-final}.png`. |
+| Sheep collection visual | PASS | Replaced the false sheep-as-wool placeholder with the supplied wool asset and used the supplied wool collection counter as a milestone response. The live counter now starts accurately at `ĐÃ THU: 0 / 9`; the source image containing a static 3/9 is only shown after the third item. |
+| Sheep remaining limitation | PARTIAL | Supplied sheep grass/scissors/basket stage files are not present in this local import, so feed still uses the shared grass art and shearing remains a fallback tap action. These are recorded as asset-import work, not misrepresented as completed authored interactions. |
+| Chicken scale / real input | PASS | Reduced the dominant chick image and heading density; the updated screenshot is visually balanced and the full actual-pointer Chicken test still passed. Evidence: `test-results/artifacts/e2e-chicken-Chicken-Farm-c-41c69-ats-with-real-pointer-input-desktop/chicken-meet.png`. |
+
+# QA-VISUAL-010 — whole-game entry-screen visual pass (2026-11-17)
+
+| Check | Result | Evidence |
+|---|---|---|
+| All playable entry scenes | PASS | A dedicated browser pass captured Welcome, Avatar, Intro, Map, Crop, Cow, Fishing, Memory, Chicken, Sheep, Warehouse and Shop at the supported desktop viewport. `npx playwright test tests/e2e/visual-audit.spec.ts --reporter=line` passed with no console errors. Captures: `test-results/artifacts/e2e-visual-audit-capture-e-b19d5-e-entry-scene-for-visual-QA-desktop/01-welcome.png` through `12-shop.png`. |
+| Corrected visual defects | PASS | Welcome now identifies the product as Beacon English; the Memory theme grid centres the two locked packs and improves their contrast. The Cow feed-label correction is separately verified below after this capture set. |
+| Intentional remaining limits | RECORDED | Lake has no supplied illustrated sign; locked Home themes remain unavailable because their deck/payment content is incomplete; exact map-area glow needs supplied cropped transparent region files. These are content/asset gaps, not hidden layout failures. |
+
+# QA-VISUAL-011 — final Cow layout and full-flow regression (2026-11-17)
+
+| Check | Result | Evidence |
+|---|---|---|
+| Initial Cow composition | PASS | Removed the duplicate low-contrast target text that previously sat on top of the cow. The child now gets one high-contrast bilingual task line at the safe top area and three clearly separated food targets along the lower edge. Independently reviewed capture: `output/playwright/cow-feed-initial-final.png`. |
+| Full Cow pointer flow | PASS | `npx playwright test tests/e2e/cow.spec.ts --reporter=line` passed after the layout change. It uses real drag/tap input for grass, bucket, five milk taps, all ten bottle drags, START and reward; no console error or genuine failed asset request was accepted. |
+| Static checks | PASS | `npm run build`, `npm run lint`, and `git diff --check` passed. The Vite large-chunk warning remains a performance follow-up, not a layout/runtime error. |

@@ -10,11 +10,11 @@ export class WelcomeScene extends BaseScene {
     // Real Drive notice-board artwork: text remains native for crisp Vietnamese/localization.
     this.add.image(408, 430, 'drive-notice-board').setDisplaySize(570, 380).setDepth(2)
     // The wooden header remains intentionally empty: its usable text area is too narrow.
-    this.add.text(408, 360, 'HAPPY FARM', {
+    this.add.text(408, 360, 'BEACON ENGLISH', {
       // Nunito is locally reliable in the Phaser canvas; it keeps the label legible if Google Fonts is unavailable.
-      fontFamily: 'Nunito', fontSize: '40px', fontStyle: 'bold', color: '#7d3f16', stroke: '#fff9e8', strokeThickness: 4,
+      fontFamily: 'Nunito', fontSize: '35px', fontStyle: 'bold', color: '#7d3f16', stroke: '#fff9e8', strokeThickness: 4,
     }).setOrigin(.5).setDepth(3)
-    this.add.text(408, 415, 'Nông trại tiếng Anh', {
+    this.add.text(408, 415, 'Happy Farm · Nông trại tiếng Anh', {
       fontFamily: 'Nunito', fontSize: '27px', color: '#31576d', fontStyle: 'bold',
     }).setOrigin(.5).setDepth(3)
     this.add.text(408, 459, 'Chơi • Nghe • Ghi nhớ', {
