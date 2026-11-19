@@ -316,3 +316,13 @@
 | Initial Cow composition | PASS | Removed the duplicate low-contrast target text that previously sat on top of the cow. The child now gets one high-contrast bilingual task line at the safe top area and three clearly separated food targets along the lower edge. Independently reviewed capture: `output/playwright/cow-feed-initial-final.png`. |
 | Full Cow pointer flow | PASS | `npx playwright test tests/e2e/cow.spec.ts --reporter=line` passed after the layout change. It uses real drag/tap input for grass, bucket, five milk taps, all ten bottle drags, START and reward; no console error or genuine failed asset request was accepted. |
 | Static checks | PASS | `npm run build`, `npm run lint`, and `git diff --check` passed. The Vite large-chunk warning remains a performance follow-up, not a layout/runtime error. |
+
+# QA-SHEEP-012 — current scripted-flow corrective pass (2026-11-20)
+
+| Check | Result | Evidence / limitation |
+|---|---|---|
+| Feed interaction | FIXED / verified | A real browser-pointer probe started the current Sheep scene, entered Level 1, and dragged the visible supplied grass image from `(285,785)` onto the first sheep. The live HUD changed from `SHEEP FED: 0 / 3` to `SHEEP FED: 1 / 3`. The former scene-wide pointer handler was replaced with Phaser's per-object drag lifecycle; this prevents the grass from silently failing after the backpack interaction. |
+| Static verification | PASS | `npm run lint`, `npm run build`, and `git diff --check` passed after the drag repair. |
+| Full three-level pointer flow | PASS | `npx playwright test tests/e2e/sheep.spec.ts --project=desktop --reporter=line` completed the actual child flow: three grass drags, three scissor drags, opening and placing the basket, six wool drags, guided left-to-right counting, then the five shuffled numeric answers. The final reward state persisted `sheep-farm`; no error context was emitted. Evidence: `test-results/artifacts/e2e-sheep-Sheep-Farm-follo-f441a-low-with-real-pointer-input-desktop/{sheep-intro,sheep-wool-collected,sheep-final}.png`. |
+| Final reward art | FIXED / visually reviewed | `IMG_7588.PNG` was the supplied **Try Again** art, not a completion illustration. It was removed from the final screen and replaced with the supplied happy-sheep art, three reward stars and bilingual completion copy. The final capture was visually checked for accidental failure copy and overlapping controls. |
+| Portrait safeguard | PASS | At `390×844`, the loading watchdog finished within 6.2 seconds and the app showed the deliberate, readable `Hãy xoay ngang màn hình` orientation overlay rather than clipping the 16:9 game canvas. |
